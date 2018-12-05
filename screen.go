@@ -14,13 +14,13 @@ func (e *editor) editorRefreshScreen() {
 	termbox.Clear(termbox.ColorBlack, termbox.ColorDefault)
 	// Draw the runes on the screen
 	for y := 0; y < e.screenrows; y++ {
-		filerow := e.rowoff + y
+		filerow := e.point.ro + y
 
 		if filerow >= e.numrows {
 			drawline(y, e.fgcolor, e.bgcolor, "~")
 		} else {
 			r := e.row[filerow]
-			len := r.rsize - e.coloff
+			len := r.rsize - e.point.co
 			if len > 0 {
 				if len > e.screencols {
 					len = e.screencols
@@ -39,7 +39,7 @@ func (e *editor) editorRefreshScreen() {
 		dirtyflag = "(modified)"
 	}
 	status := fmt.Sprintf("-- %s - %d lines - %d/%d - %s",
-		e.filename, e.numrows, e.rowoff+e.cy+1, e.coloff+e.cx+1, dirtyflag) //e.dirty ? "(modified)" : "")
+		e.filename, e.numrows, e.point.ro+e.point.r+1, e.point.co+e.point.c+1, dirtyflag) //e.dirty ? "(modified)" : "")
 	slen := len(status)
 	if slen > e.screencols {
 		slen = e.screencols
@@ -57,24 +57,24 @@ func (e *editor) editorRefreshScreen() {
 		drawline(e.screenrows+1, e.fgcolor, e.bgcolor, " ")
 	}
 	/* Put cursor at its currentLine position. Note that the horizontal position
-	 * at which the cursor is displayed may be different compared to 'e.cx'
+	 * at which the cursor is displayed may be different compared to 'e.point.c'
 	 * because of Tabs. */
 	j := 0
 	cx := 0
-	filerow := e.rowoff + e.cy
+	filerow := e.point.ro + e.point.r
 	var row *erow // := nil
 	if filerow < e.numrows {
 		row = e.row[filerow]
 	}
 	if row != nil {
-		for j = e.coloff; j < (e.cx + e.coloff); j++ {
+		for j = e.point.co; j < (e.point.c + e.point.co); j++ {
 			if j < row.size && row.runes[j] == Tab {
 				cx += 7 - ((cx) % 8)
 			}
 			cx++
 		}
 	}
-	termbox.SetCursor(cx, e.cy)
+	termbox.SetCursor(cx, e.point.r)
 	termbox.Flush()
 }
 

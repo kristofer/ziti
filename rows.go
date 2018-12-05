@@ -113,8 +113,8 @@ func (e *editor) editorRowDelChar(row *erow, at int) {
 
 /* Insert the specified char at the currentLine prompt position. */
 func (e *editor) editorInsertChar(rch rune) {
-	filerow := e.rowoff + e.cy
-	filecol := e.coloff + e.cx
+	filerow := e.point.ro + e.point.r
+	filecol := e.point.co + e.point.c
 	var row *erow
 	if filerow < e.numrows {
 		row = e.row[filerow]
@@ -128,10 +128,10 @@ func (e *editor) editorInsertChar(rch rune) {
 	}
 	row = e.row[filerow]
 	e.editorRowInsertChar(row, filecol, rch)
-	if e.cx == e.screencols-1 {
-		e.coloff++
+	if e.point.c == e.screencols-1 {
+		e.point.co++
 	} else {
-		e.cx++
+		e.point.c++
 	}
 	e.dirty = true
 }
@@ -139,8 +139,8 @@ func (e *editor) editorInsertChar(rch rune) {
 /* Inserting a newline is slightly complex as we have to handle inserting a
  * newline in the middle of a line, splitting the line as needed. */
 func (e *editor) editorInsertNewline() {
-	filerow := e.rowoff + e.cy
-	filecol := e.coloff + e.cx
+	filerow := e.point.ro + e.point.r
+	filecol := e.point.co + e.point.c
 	var row *erow
 	if filerow < e.numrows {
 		row = e.row[filerow]
@@ -172,19 +172,19 @@ func (e *editor) editorInsertNewline() {
 }
 
 func (e *editor) fixcursor() {
-	if e.cy == e.screenrows-1 {
-		e.rowoff++
+	if e.point.r == e.screenrows-1 {
+		e.point.ro++
 	} else {
-		e.cy++
+		e.point.r++
 	}
-	e.cx = 0
-	e.coloff = 0
+	e.point.c = 0
+	e.point.co = 0
 }
 
 /* Delete the char at the currentLine cursor position. */
 func (e *editor) editorDelChar() {
-	filerow := e.rowoff + e.cy
-	filecol := e.coloff + e.cx
+	filerow := e.point.ro + e.point.r
+	filecol := e.point.co + e.point.c
 	var row *erow
 	if filerow < e.numrows {
 		row = e.row[filerow]
@@ -199,23 +199,23 @@ func (e *editor) editorDelChar() {
 		e.editorRowAppendString(e.row[filerow-1], string(row.runes))
 		e.editorDelRow(filerow)
 		row = nil
-		if e.cy == 0 {
-			e.rowoff--
+		if e.point.r == 0 {
+			e.point.ro--
 		} else {
-			e.cy--
+			e.point.r--
 		}
-		e.cx = filecol
-		if e.cx >= e.screencols {
-			shift := (e.screencols - e.cx) + 1
-			e.cx -= shift
-			e.coloff += shift
+		e.point.c = filecol
+		if e.point.c >= e.screencols {
+			shift := (e.screencols - e.point.c) + 1
+			e.point.c -= shift
+			e.point.co += shift
 		}
 	} else {
 		e.editorRowDelChar(row, filecol-1)
-		if e.cx == 0 && e.coloff != 0 {
-			e.coloff--
+		if e.point.c == 0 && e.point.co != 0 {
+			e.point.co--
 		} else {
-			e.cx--
+			e.point.c--
 		}
 	}
 	if row != nil {
@@ -225,8 +225,8 @@ func (e *editor) editorDelChar() {
 }
 
 func (e *editor) movetoLineStart() {
-	e.cx = 0
+	e.point.c = 0
 }
 func (e *editor) movetoLineEnd() {
-	e.cx = e.row[e.rowoff+e.cy].size
+	e.point.c = e.row[e.point.ro+e.point.r].size
 }

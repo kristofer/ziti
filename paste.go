@@ -1,8 +1,8 @@
 package ziti
 
 func (e *editor) setMark() {
-	e.mark.r, e.mark.c = e.cy, e.cx
-	e.mark.ro, e.mark.co = e.rowoff, e.coloff
+	e.mark.r, e.mark.c = e.point.r, e.point.c
+	e.mark.ro, e.mark.co = e.point.ro, e.point.co
 	e.markSet = true
 	e.editorSetStatusMessage("Mark Set (%d,%d)", e.mark.r+e.mark.ro, e.mark.c+e.mark.co)
 }
@@ -28,7 +28,7 @@ func (e *editor) cutCopy(del bool) {
 		return
 	}
 	e.pastebuffer = ""
-	sr, sc, er, ec, reverse := swapCursorsMaybe(e.mark.r+e.mark.ro, e.mark.c+e.mark.co, e.rowoff+e.cy, e.coloff+e.cx)
+	sr, sc, er, ec, reverse := swapCursorsMaybe(e.mark.r+e.mark.ro, e.mark.c+e.mark.co, e.point.ro+e.point.r, e.point.co+e.point.c)
 	for i := sr; i <= er; i++ {
 		if sr == er {
 			l := e.row[i]
@@ -57,9 +57,9 @@ func (e *editor) cutCopy(del bool) {
 	// if del == true, remove all the chars
 	if del == true {
 		c2Remove := len(e.pastebuffer)
-		if reverse {
-			e.cy, e.cx = e.mark.r, e.mark.c
-			e.rowoff, e.coloff = e.mark.ro, e.mark.co
+		if reverse { // move cursor to delete the right runes
+			e.point.r, e.point.c = e.mark.r, e.mark.c
+			e.point.ro, e.point.co = e.mark.ro, e.mark.co
 		}
 		for k := 0; k < c2Remove; k++ {
 			e.editorDelChar()

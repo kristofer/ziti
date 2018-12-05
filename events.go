@@ -6,69 +6,69 @@ import termbox "github.com/nsf/termbox-go"
 
 /* Handle cursor position change because arrow keys were pressed. */
 func (e *editor) editorMoveCursor(rch termbox.Key) {
-	filerow := e.rowoff + e.cy
-	filecol := e.coloff + e.cx
+	filerow := e.point.ro + e.point.r
+	filecol := e.point.co + e.point.c
 	var row *erow
 	if filerow < e.numrows {
 		row = e.row[filerow]
 	}
 	switch rch {
 	case ArrowLeft:
-		if e.cx == 0 {
-			if e.coloff != 0 {
-				e.coloff--
+		if e.point.c == 0 {
+			if e.point.co != 0 {
+				e.point.co--
 			} else {
 				if filerow > 0 {
-					e.cy--
-					e.cx = e.row[filerow-1].size
-					if e.cx > e.screencols-1 {
-						e.coloff = e.cx - e.screencols + 1
-						e.cx = e.screencols - 1
+					e.point.r--
+					e.point.c = e.row[filerow-1].size
+					if e.point.c > e.screencols-1 {
+						e.point.co = e.point.c - e.screencols + 1
+						e.point.c = e.screencols - 1
 					}
 				}
 			}
 		} else {
-			e.cx -= 1
+			e.point.c -= 1
 		}
 		break
 	case ArrowRight:
 		if row != nil && filecol < row.size {
-			if e.cx == e.screencols-1 {
-				e.coloff++
+			if e.point.c == e.screencols-1 {
+				e.point.co++
 			} else {
-				e.cx += 1
+				e.point.c += 1
 			}
 		} else if row != nil && filecol == row.size {
-			e.cx = 0
-			e.coloff = 0
-			if e.cy == e.screenrows-1 {
-				e.rowoff++
+			e.point.c = 0
+			e.point.co = 0
+			if e.point.r == e.screenrows-1 {
+				e.point.ro++
 			} else {
-				e.cy += 1
+				e.point.r += 1
 			}
 		}
 		break
 	case ArrowUp:
-		if e.cy == 0 {
-			if e.rowoff != 0 {
-				e.rowoff--
+		if e.point.r == 0 {
+			if e.point.ro != 0 {
+				e.point.ro--
 			}
 		} else {
-			e.cy -= 1
+			e.point.r -= 1
 		}
 	case ArrowDown:
 		if filerow < e.numrows {
-			if e.cy == e.screenrows-1 {
-				e.rowoff++
+			if e.point.r == e.screenrows-1 {
+				e.point.ro++
 			} else {
-				e.cy += 1
+				e.point.r += 1
 			}
 		}
 	default:
 	}
 	/* Fix cx if the currentLine line has not enough runes. */
-	filerow = e.rowoff + e.cy
-	filecol = e.coloff + e.cx
+	filerow = e.point.ro + e.point.r
+	filecol = e.point.co + e.point.c
 	if filerow < e.numrows {
 		row = e.row[filerow]
 	}
@@ -77,10 +77,10 @@ func (e *editor) editorMoveCursor(rch termbox.Key) {
 		rowlen = len(row.runes)
 	}
 	if filecol > rowlen {
-		e.cx -= filecol - rowlen
-		if e.cx < 0 {
-			e.coloff += e.cx
-			e.cx = 0
+		e.point.c -= filecol - rowlen
+		if e.point.c < 0 {
+			e.point.co += e.point.c
+			e.point.c = 0
 		}
 	}
 }
@@ -138,11 +138,11 @@ func (e *editor) editorProcessEvent(ev termbox.Event) {
 	case DelKey:
 		e.editorDelChar()
 	case PageUp, PageDown:
-		if ev.Key == PageUp && e.cy != 0 {
-			e.cy = 0
+		if ev.Key == PageUp && e.point.r != 0 {
+			e.point.r = 0
 		} else {
-			if ev.Key == PageDown && e.cy != e.screenrows-1 {
-				e.cy = e.screenrows - 1
+			if ev.Key == PageDown && e.point.r != e.screenrows-1 {
+				e.point.r = e.screenrows - 1
 			}
 		}
 		times := e.screenrows

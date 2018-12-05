@@ -43,7 +43,7 @@ import (
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-const zitiVersion = "1.1"
+const zitiVersion = "1.2"
 
 // Ziti is the top-level exported type
 type Ziti struct {
@@ -60,17 +60,14 @@ type erow struct {
 }
 
 type cursor struct {
-	r  int
-	c  int
-	ro int
-	co int
+	r  int /* Cursor row position */
+	c  int /* Cursor column position */
+	ro int /* Cursor rowoffset */
+	co int /* Cursor coloffset */
 }
 type editor struct {
 	events        chan termbox.Event
-	cx            int
-	cy            int /* Cursor x and y position in characters */
-	rowoff        int /* Offset of row displayed. */
-	coloff        int /* Offset of column displayed. */
+	point         cursor
 	mark          cursor
 	markSet       bool
 	screenrows    int /* Number of rows that we can show */
@@ -79,7 +76,6 @@ type editor struct {
 	TextSize      int
 	quitTimes     int
 	done          bool
-	rawmode       bool    /* Is terminal raw mode enabled? */
 	row           []*erow /* Rows */
 	dirty         bool    /* File modified but not saved. */
 	filename      string  /* Currently open filename */
@@ -142,10 +138,10 @@ type State struct {
 // NewEditor generates a new editor for use
 func (e *editor) initEditor() {
 	e.done = false
-	e.cx = 0
-	e.cy = 0
-	e.rowoff = 0
-	e.coloff = 0
+	e.point.c = 0
+	e.point.r = 0
+	e.point.ro = 0
+	e.point.co = 0
 	e.numrows = 0
 	e.row = nil
 	e.dirty = false

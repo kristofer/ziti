@@ -93,15 +93,15 @@ func (e *editor) searchBackwards(startr, startc int, stext string) (fr, fc int) 
 
 func (e *editor) editorFind() {
 	query := ""
-	startrow := e.rowoff + e.cy
-	startcol := e.coloff + e.cx
+	startrow := e.point.ro + e.point.r
+	startcol := e.point.co + e.point.c
 	lastLineMatch := startrow /* Last line where a match was found. -1 for none. */
 	lastColMatch := startcol  // last column where a match was found
 	findDirection := 1        /* if 1 search next, if -1 search prev. */
 
 	/* Save the cursor position in order to restore it later. */
-	savedCx, savedCy := e.cx, e.cy
-	savedColoff, savedRowoff := e.coloff, e.rowoff
+	savedCx, savedCy := e.point.c, e.point.r
+	savedColoff, savedRowoff := e.point.co, e.point.ro
 
 	for {
 		e.editorSetStatusMessage("Search: %s (Use Esc/Arrows/Enter)", query)
@@ -138,10 +138,10 @@ func (e *editor) editorFind() {
 				lastLineMatch, lastColMatch = startrow, startcol
 				findDirection = -1
 			case termbox.KeyCtrlG, termbox.KeyEsc:
-				e.cx = savedCx
-				e.cy = savedCy
-				e.coloff = savedColoff
-				e.rowoff = savedRowoff
+				e.point.c = savedCx
+				e.point.r = savedCy
+				e.point.co = savedColoff
+				e.point.ro = savedRowoff
 				e.editorSetStatusMessage("")
 				return
 			case termbox.KeyArrowDown, termbox.KeyArrowRight:
@@ -167,15 +167,15 @@ func (e *editor) editorFind() {
 			if currentLine != -1 {
 				lastLineMatch = currentLine
 				lastColMatch = matchOffset
-				e.cy = 0
-				e.cx = matchOffset
-				e.rowoff = currentLine
-				e.coloff = 0
+				e.point.r = 0
+				e.point.c = matchOffset
+				e.point.ro = currentLine
+				e.point.co = 0
 				/* Scroll horizontally as needed. */
-				if e.cx > e.screencols {
-					diff := e.cx - e.screencols
-					e.cx -= diff
-					e.coloff += diff
+				if e.point.c > e.screencols {
+					diff := e.point.c - e.screencols
+					e.point.c -= diff
+					e.point.co += diff
 				}
 			}
 		}
