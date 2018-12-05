@@ -80,6 +80,8 @@ type editor struct {
 	statusmsg     string
 	statusmsgTime time.Time
 	pastebuffer   string
+	fgcolor       termbox.Attribute
+	bgcolor       termbox.Attribute
 }
 
 func (e *editor) checkErr(er error) {
@@ -145,6 +147,8 @@ func (e *editor) initEditor() {
 	e.screencols, e.screenrows = termbox.Size()
 	e.screenrows -= 2 /* Get room for status bar. */
 	e.quitTimes = 3
+	e.fgcolor = termbox.ColorDefault //termbox.ColorBlack
+	e.bgcolor = termbox.ColorDefault //termbox.ColorWhite
 }
 
 // Start runs an editor

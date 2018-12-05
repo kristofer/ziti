@@ -16,7 +16,7 @@ func (e *editor) editorRefreshScreen() {
 		filerow := e.rowoff + y
 
 		if filerow >= e.numrows {
-			drawline(y, termbox.ColorBlack, termbox.ColorDefault, "~")
+			drawline(y, e.fgcolor, e.bgcolor, "~")
 		} else {
 			r := e.row[filerow]
 			len := r.rsize - e.coloff
@@ -27,7 +27,7 @@ func (e *editor) editorRefreshScreen() {
 
 				for j := 0; j < len; j++ {
 
-					termbox.SetCell(j, y, r.render[j], termbox.ColorBlack, termbox.ColorDefault)
+					termbox.SetCell(j, y, r.render[j], e.fgcolor, e.bgcolor)
 				}
 			}
 		}
@@ -48,13 +48,13 @@ func (e *editor) editorRefreshScreen() {
 		status = status + " "
 		slen++
 	}
-	drawline(e.screenrows, termbox.ColorWhite, termbox.ColorBlack, status)
+	drawline(e.screenrows, e.bgcolor, e.fgcolor, status)
 	/* Second row depends on e.statusmsg and the status message update time. */
 
 	if len(e.statusmsg) > 0 && time.Since(e.statusmsgTime).Seconds() < 5 {
-		drawline(e.screenrows+1, termbox.ColorBlack, termbox.ColorDefault, e.statusmsg)
+		drawline(e.screenrows+1, e.fgcolor, e.bgcolor, e.statusmsg)
 	} else {
-		drawline(e.screenrows+1, termbox.ColorBlack, termbox.ColorDefault, " ")
+		drawline(e.screenrows+1, e.fgcolor, e.bgcolor, " ")
 	}
 
 	/* Put cursor at its currentLine position. Note that the horizontal position
