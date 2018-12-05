@@ -1,31 +1,49 @@
 package ziti
 
 func (e *editor) setMark() {
-	filerow := e.rowoff + e.cy
-	filecol := e.coloff + e.cx
-	e.marky = filerow
-	e.markx = filecol
-	e.editorSetStatusMessage("Mark Set (%d,%d)", filecol, filerow)
+	e.mark.r, e.mark.c = e.cy, e.cx
+	e.mark.ro, e.mark.co = e.rowoff, e.coloff
+	e.markSet = true
+	e.editorSetStatusMessage("Mark Set (%d,%d)", e.mark.r+e.mark.ro, e.mark.c+e.mark.co)
 }
+func (e *editor) noMark() bool {
+	e.markSet = false
+	return e.markSet
+}
+func swapCursorsMaybe(mr, mc, cr, cc int) (sr, sc, er, ec int, f bool) {
+	if mr == cr {
+		if mc > cc {
+			return cr, cc, mr, mc, true
+		}
+		return mr, mc, cr, cc, false
+	}
+	if mr > cr {
+		return cr, cc, mr, mc, true
+	}
+	return mr, mc, cr, cc, false
+}
+
 func (e *editor) cutCopy(del bool) {
-	filerow := e.rowoff + e.cy
-	filecol := e.coloff + e.cx
+	if e.noMark() == true {
+		return
+	}
 	e.pastebuffer = ""
-	for i := e.marky; i <= filerow; i++ {
-		if e.marky == filerow {
+	sr, sc, er, ec, reverse := swapCursorsMaybe(e.mark.r+e.mark.ro, e.mark.c+e.mark.co, e.rowoff+e.cy, e.coloff+e.cx)
+	for i := sr; i <= er; i++ {
+		if sr == er {
 			l := e.row[i]
-			for j := e.markx; j < filecol; j++ {
+			for j := sc; j < ec; j++ {
 				e.pastebuffer = e.pastebuffer + string(l.runes[j])
 			}
-		} else if i == e.marky {
+		} else if i == sr {
 			l := e.row[i]
-			for j := e.markx; j < l.size; j++ {
+			for j := sc; j < l.size; j++ {
 				e.pastebuffer = e.pastebuffer + string(l.runes[j])
 			}
 			e.pastebuffer = e.pastebuffer + "\n"
-		} else if i == filerow {
+		} else if i == er {
 			l := e.row[i]
-			for j := 0; j < filecol; j++ {
+			for j := 0; j < ec; j++ {
 				e.pastebuffer = e.pastebuffer + string(l.runes[j])
 			}
 		} else {
@@ -39,10 +57,15 @@ func (e *editor) cutCopy(del bool) {
 	// if del == true, remove all the chars
 	if del == true {
 		c2Remove := len(e.pastebuffer)
+		if reverse {
+			e.cy, e.cx = e.mark.r, e.mark.c
+			e.rowoff, e.coloff = e.mark.ro, e.mark.co
+		}
 		for k := 0; k < c2Remove; k++ {
 			e.editorDelChar()
 		}
 	}
+	e.noMark()
 }
 
 func (e *editor) paste() {

@@ -59,17 +59,23 @@ type erow struct {
 	render []rune /* Row content "rendered" for screen (for Tabs). */
 }
 
+type cursor struct {
+	r  int
+	c  int
+	ro int
+	co int
+}
 type editor struct {
 	events        chan termbox.Event
 	cx            int
 	cy            int /* Cursor x and y position in characters */
 	rowoff        int /* Offset of row displayed. */
-	markx         int /* set mark for copy */
-	marky         int
 	coloff        int /* Offset of column displayed. */
+	mark          cursor
+	markSet       bool
 	screenrows    int /* Number of rows that we can show */
 	screencols    int /* Number of cols that we can show */
-	numrows       int /* Number of rows */
+	numrows       int /* Number of rows in file */
 	TextSize      int
 	quitTimes     int
 	done          bool

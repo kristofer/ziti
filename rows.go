@@ -181,7 +181,7 @@ func (e *editor) fixcursor() {
 	e.coloff = 0
 }
 
-/* Delete the char at the currentLine prompt position. */
+/* Delete the char at the currentLine cursor position. */
 func (e *editor) editorDelChar() {
 	filerow := e.rowoff + e.cy
 	filecol := e.coloff + e.cx
