@@ -1,23 +1,10 @@
 package ziti
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
-
-func printIdxForLine(ln int) {
-	fmt.Println()
-}
-
-func TestBufferGrow(t *testing.T) {
-
-	// if total != 10 {
-	// 	t.Errorf("Sum was incorrect, got: %d, want: %d.", total, 10)
-	// }
-
-}
 
 func TestSearchForward(t *testing.T) {
 	s := "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. "
@@ -113,26 +100,4 @@ func Test2SearchBackwards(t *testing.T) {
 	assert.Equal(t, 0, r)
 	assert.Equal(t, 57, c)
 
-}
-
-func TestLineStart(t *testing.T) {
-	//s := "Lorem\nlite\nsed ut\naliqua.-\nhhh"
-	//    01234 56789 1123456 789212345 67893
-
-	// assert.Equal(t, 0, gb.LineStart(0))
-	// assert.Equal(t, 0, gb.LineStart(1))
-	// assert.Equal(t, 0, gb.LineStart(4))
-	// assert.Equal(t, 0, gb.LineStart(5))
-	// assert.Equal(t, 6, gb.LineStart(6))
-	// assert.Equal(t, 6, gb.LineStart(8))
-	// assert.Equal(t, 6, gb.LineStart(10))
-	// assert.Equal(t, 11, gb.LineStart(11))
-	// assert.Equal(t, 11, gb.LineStart(13))
-	// assert.Equal(t, 11, gb.LineStart(13))
-	// assert.Equal(t, 18, gb.LineStart(21))
-	// assert.Equal(t, 18, gb.LineStart(25))
-	// assert.Equal(t, 18, gb.LineStart(26))
-	// assert.Equal(t, 27, gb.LineStart(27))
-	// assert.Equal(t, 27, gb.LineStart(29))
-	// gb.DebugPrint()
 }

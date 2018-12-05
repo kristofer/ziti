@@ -3,6 +3,8 @@ package main
 import (
 	"log"
 	"os"
+
+	"github.com/xt0fer/ziti"
 )
 
 func main() {

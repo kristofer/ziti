@@ -1,0 +1,183 @@
+package ziti
+
+import (
+	"log"
+
+	termbox "github.com/nsf/termbox-go"
+)
+
+/* =============================== Find mode ================================ */
+
+func (e *editor) runeAt(r, c int) rune {
+	return e.row[r].runes[c]
+}
+
+func (e *editor) searchForward(startr, startc int, stext string) (fr, rc int) {
+	if len(stext) == 0 {
+		return -1, -1
+	}
+	s := []rune(stext)
+	ss := 0
+
+	c := startc
+	r := startr
+	for r < e.numrows {
+		for c < e.row[r].size {
+			rch := e.runeAt(r, c)
+			if ss < len(s) && s[ss] == rch {
+				ss++
+			} else {
+				if ss == len(s) {
+					log.Println("found", r, c)
+					return r, c
+				}
+				if s[ss] != rch {
+					ss = 0
+				}
+			}
+			c++
+		}
+		c = 0
+		r++
+		ss = 0
+	}
+	return -1, -1
+}
+
+func reverse(s string) []rune {
+	r := []rune(s)
+	for i, j := 0, len(r)-1; i < len(r)/2; i, j = i+1, j-1 {
+		r[i], r[j] = r[j], r[i]
+	}
+	return r
+}
+
+func (e *editor) searchBackwards(startr, startc int, stext string) (fr, fc int) {
+	if len(stext) == 0 {
+		return -1, -1
+	}
+	s := reverse(stext)
+	ss := 0
+
+	c := startc
+	r := startr
+	//log.Printf("before lop r %d c %d\n", r, c)
+	for r > -1 {
+		log.Printf("r is %d\n", r)
+		for c >= 0 && c < e.row[r].size {
+			rch := e.runeAt(r, c)
+			if ss < len(s) && s[ss] == rch {
+				fr = r
+				fc = c
+				ss++
+			} else if s[ss] != rch {
+				ss = 0
+			}
+
+			if ss == len(s) {
+				log.Println("found", r, c)
+				return fr, fc
+			}
+			c--
+		}
+		if r > 0 {
+			r--
+			c = e.row[r].size - 1
+		} else {
+			break
+		}
+		ss = 0
+	}
+	return -1, -1
+}
+
+func (e *editor) editorFind() {
+	query := ""
+	startrow := e.rowoff + e.cy
+	startcol := e.coloff + e.cx
+	lastLineMatch := startrow /* Last line where a match was found. -1 for none. */
+	lastColMatch := startcol  // last column where a match was found
+	findDirection := 1        /* if 1 search next, if -1 search prev. */
+
+	/* Save the cursor position in order to restore it later. */
+	savedCx, savedCy := e.cx, e.cy
+	savedColoff, savedRowoff := e.coloff, e.rowoff
+
+	for {
+		e.editorSetStatusMessage("Search: %s (Use Esc/Arrows/Enter)", query)
+		e.editorRefreshScreen()
+		ev := <-e.events
+		if ev.Ch != 0 {
+			ch := ev.Ch
+			query = query + string(ch)
+			lastLineMatch, lastColMatch = startrow, startcol
+			findDirection = 1
+		}
+		if ev.Ch == 0 {
+			switch ev.Key {
+			case termbox.KeyTab:
+				query = query + string('\t')
+				lastLineMatch, lastColMatch = startrow, startcol
+				findDirection = 1
+			case termbox.KeySpace:
+				query = query + string(' ')
+				lastLineMatch, lastColMatch = startrow, startcol
+				findDirection = 1
+			case termbox.KeyEnter, termbox.KeyCtrlR:
+				e.editorSetStatusMessage("")
+				return
+			case termbox.KeyCtrlC:
+				e.editorSetStatusMessage("killed.")
+				return
+			case termbox.KeyBackspace2, termbox.KeyBackspace:
+				if len(query) > 0 {
+					query = query[:len(query)-1]
+				} else {
+					query = ""
+				}
+				lastLineMatch, lastColMatch = startrow, startcol
+				findDirection = -1
+			case termbox.KeyCtrlG, termbox.KeyEsc:
+				e.cx = savedCx
+				e.cy = savedCy
+				e.coloff = savedColoff
+				e.rowoff = savedRowoff
+				e.editorSetStatusMessage("")
+				return
+			case termbox.KeyArrowDown, termbox.KeyArrowRight:
+				findDirection = 1
+			case termbox.KeyArrowLeft, termbox.KeyArrowUp:
+				findDirection = -1
+			default:
+				e.editorSetStatusMessage("Search: %s (Use Esc/Arrows/Enter)", query)
+				e.editorRefreshScreen()
+				findDirection = 0
+			}
+		}
+		if findDirection != 0 {
+			currentLine, matchOffset := -1, -1
+			if findDirection == 1 {
+				currentLine, matchOffset = e.searchForward(lastLineMatch, lastColMatch, query)
+			}
+			if findDirection == -1 {
+				currentLine, matchOffset = e.searchBackwards(lastLineMatch, lastColMatch, query)
+			}
+			//findDirection = 0
+
+			if currentLine != -1 {
+				lastLineMatch = currentLine
+				lastColMatch = matchOffset
+				e.cy = 0
+				e.cx = matchOffset
+				e.rowoff = currentLine
+				e.coloff = 0
+				/* Scroll horizontally as needed. */
+				if e.cx > e.screencols {
+					diff := e.cx - e.screencols
+					e.cx -= diff
+					e.coloff += diff
+				}
+			}
+		}
+	}
+}
