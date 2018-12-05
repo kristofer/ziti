@@ -28,7 +28,7 @@ func (e *editor) editorMoveCursor(rch termbox.Key) {
 				}
 			}
 		} else {
-			e.point.c -= 1
+			e.point.c--
 		}
 		break
 	case ArrowRight:
@@ -36,7 +36,7 @@ func (e *editor) editorMoveCursor(rch termbox.Key) {
 			if e.point.c == e.screencols-1 {
 				e.point.co++
 			} else {
-				e.point.c += 1
+				e.point.c++
 			}
 		} else if row != nil && filecol == row.size {
 			e.point.c = 0
@@ -44,7 +44,7 @@ func (e *editor) editorMoveCursor(rch termbox.Key) {
 			if e.point.r == e.screenrows-1 {
 				e.point.ro++
 			} else {
-				e.point.r += 1
+				e.point.r++
 			}
 		}
 		break
@@ -54,14 +54,14 @@ func (e *editor) editorMoveCursor(rch termbox.Key) {
 				e.point.ro--
 			}
 		} else {
-			e.point.r -= 1
+			e.point.r--
 		}
 	case ArrowDown:
 		if filerow < e.numrows {
 			if e.point.r == e.screenrows-1 {
 				e.point.ro++
 			} else {
-				e.point.r += 1
+				e.point.r++
 			}
 		}
 	default:
