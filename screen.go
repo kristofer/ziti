@@ -48,7 +48,7 @@ func (e *editor) editorRefreshScreen() {
 		status = status + " "
 		slen++
 	}
-	drawline(e.screenrows, e.bgcolor, e.fgcolor, status)
+	drawline(e.screenrows, e.fgcolor|termbox.AttrReverse, e.bgcolor|termbox.AttrReverse, status) //termbox.ColorWhite, termbox.ColorBlack, status)
 	/* Second row depends on e.statusmsg and the status message update time. */
 
 	if len(e.statusmsg) > 0 && time.Since(e.statusmsgTime).Seconds() < 5 {
