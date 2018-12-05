@@ -153,14 +153,16 @@ func (e *editor) initEditor() {
 
 // Start runs an editor
 func (z *Ziti) Start(filename string) {
-	z.ziti = &editor{}
-	e := z.ziti
-	e.initEditor()
+
 	err := termbox.Init()
 	if err != nil {
 		panic(err)
 	}
 	defer termbox.Close()
+
+	z.ziti = &editor{}
+	e := z.ziti
+	e.initEditor()
 
 	e.editorOpen(filename)
 	termbox.SetOutputMode(termbox.OutputNormal)
