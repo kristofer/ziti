@@ -2,18 +2,18 @@ package ziti
 
 import (
 	"bufio"
-	"io/ioutil"
+	"fmt"
 	"log"
 	"os"
 )
 
 /* =================== FILE OPS ==============================*/
-/* Load the specified program in the editor memory and returns 0 on success
- * or 1 on error. */
+/* Load the specified text file into the editor return any error*/
 func (e *editor) editorOpen(filename string) error {
 
 	// open the file filename
-	file, err := os.Open(filename)
+
+	file, err := os.OpenFile(filename, os.O_RDWR|os.O_CREATE, 0755)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -36,11 +36,21 @@ func (e *editor) editorOpen(filename string) error {
 
 /* Save the currentLine file on disk. Return 0 on success, 1 on error. */
 func (e *editor) editorSave() error {
-	buf := e.editorRowsToString()
-	err := ioutil.WriteFile(e.filename, []byte(buf), 0644)
+	file, err := os.OpenFile(e.filename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+	w := bufio.NewWriter(file)
+	totalbytes := 0
+	for _, line := range e.row {
+		totalbytes += len(line.runes) + 1
+		fmt.Fprintln(w, string(line.runes))
+	}
+	err = w.Flush()
 	e.checkErr(err)
 	if err == nil {
-		e.editorSetStatusMessage("Saved %d bytes (%d runes).", len(buf), len([]rune(buf)))
+		e.editorSetStatusMessage("Saved %d bytes.", totalbytes)
 		e.dirty = false
 	}
 	return err

@@ -32,6 +32,7 @@ so, you may need to `go get github.com/nsf/termbox-go`
     CTRL-E: Move to end of current line
 
     Delete to delete a rune backward
+    CTRL-K: killtoEndOfLine (once) removeLine (twice)
 
     on mac keyboards:
     FN+ArrowUp: PageUp (screen full)

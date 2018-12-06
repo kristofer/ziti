@@ -113,6 +113,9 @@ func (e *editor) editorProcessEvent(ev termbox.Event) {
 	case CtrlE: /* Ctrl-c */
 		/* We ignore ctrl-c, it can't be so simple to lose the changes to the edited file. */
 		e.movetoLineEnd()
+	case CtrlK:
+		/* We ignore ctrl-c, it can't be so simple to lose the changes to the edited file. */
+		e.killtoLineEnd()
 	case CtrlQ: /* Ctrl-q */
 		/* Quit if the file was already saved. */
 		if e.dirty && e.quitTimes > 0 {

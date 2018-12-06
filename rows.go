@@ -230,3 +230,15 @@ func (e *editor) movetoLineStart() {
 func (e *editor) movetoLineEnd() {
 	e.point.c = e.row[e.point.ro+e.point.r].size
 }
+func (e *editor) killtoLineEnd() {
+	linesize := e.row[e.point.ro+e.point.r].size
+	if linesize > 0 {
+		e.movetoLineEnd()
+		for k := 0; k < linesize; k++ {
+			e.editorDelChar()
+		}
+	}
+	if linesize == 0 {
+		e.editorDelRow(e.point.ro + e.point.r)
+	}
+}

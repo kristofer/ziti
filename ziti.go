@@ -1,6 +1,7 @@
 package ziti
 
 import (
+	"fmt"
 	"syscall"
 	"time"
 
@@ -102,6 +103,7 @@ const (
 	CtrlF     = 6  /* Ctrl-f find */
 	CtrlH     = 8  /* Ctrl-h del backward*/
 	Tab       = 9  /* Tab */
+	CtrlK     = 11 /* Ctrl+k killToEOL */
 	CtrlL     = 12 /* Ctrl+l redraw */
 	Enter     = 13 /* Enter */
 	CtrlQ     = 17 /* Ctrl-q quit*/
@@ -166,7 +168,11 @@ func (z *Ziti) Start(filename string) {
 	e := z.ziti
 	e.initEditor()
 
-	e.editorOpen(filename)
+	err = e.editorOpen(filename)
+	if err != nil {
+		termbox.Close()
+		fmt.Printf("ziti: error %s", err)
+	}
 	termbox.SetOutputMode(termbox.OutputNormal)
 	termbox.Clear(termbox.ColorDefault, termbox.ColorDefault)
 
