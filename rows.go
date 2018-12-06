@@ -12,14 +12,13 @@ func (e *editor) editorUpdateRow(row *erow) {
 	}
 	row.render = make([]rune, len(row.runes)+tabs*4)
 	row.rsize = len(row.render)
-	//    /* Create a version of the row we can directly print on the screen,
-	//      * respecting Tabs, substituting non prinTable characters with '?'. */
+	/* Create a version of the row we can directly print on the screen */
 	idx := 0
 	for j := 0; j < row.size; j++ {
 		if row.runes[j] == Tab {
 			row.render[idx] = ' '
 			idx++
-			for (idx+1)%4 != 0 {
+			for (idx)%4 != 0 { // +1?
 				row.render[idx] = ' '
 				idx++
 			}
@@ -28,7 +27,7 @@ func (e *editor) editorUpdateRow(row *erow) {
 			idx++
 		}
 	}
-	row.rsize = idx
+	//row.rsize = idx
 }
 
 /* Insert a row at the specified position, shifting the other rows on the bottom

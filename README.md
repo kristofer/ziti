@@ -7,9 +7,12 @@ Ziti is a small terminal/screen text editor in less than 1K lines of Go code. It
 
 To build: clone repo into gopath;
  ```
+  $ cd cmd
   $ go get -d ./...
   $ go build -o ziti
  ```
+
+ Copy to someplace in your PATH
 
 be sure you have https://godoc.org/github.com/nsf/termbox-go
 so, you may need to `go get github.com/nsf/termbox-go`

@@ -74,7 +74,6 @@ type editor struct {
 	screenrows    int /* Number of rows that we can show */
 	screencols    int /* Number of cols that we can show */
 	numrows       int /* Number of rows in file */
-	TextSize      int
 	quitTimes     int
 	done          bool
 	row           []*erow /* Rows */
