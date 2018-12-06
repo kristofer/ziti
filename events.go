@@ -101,20 +101,17 @@ func (e *editor) editorProcessEvent(ev termbox.Event) {
 		e.editorInsertChar('\t')
 	case Enter: /* Enter */
 		e.editorInsertNewline()
-	case CtrlC: /* Ctrl-c */
+	case CtrlC:
 		e.cutCopy(false)
-	case CtrlX: /* Ctrl-c */
+	case CtrlX:
 		e.cutCopy(true)
-	case CtrlV: /* Ctrl-c */
+	case CtrlV:
 		e.paste()
-	case CtrlA: /* Ctrl-c */
-		/* We ignore ctrl-c, it can't be so simple to lose the changes to the edited file. */
+	case CtrlA:
 		e.movetoLineStart()
-	case CtrlE: /* Ctrl-c */
-		/* We ignore ctrl-c, it can't be so simple to lose the changes to the edited file. */
+	case CtrlE:
 		e.movetoLineEnd()
 	case CtrlK:
-		/* We ignore ctrl-c, it can't be so simple to lose the changes to the edited file. */
 		e.killtoLineEnd()
 	case CtrlQ: /* Ctrl-q */
 		/* Quit if the file was already saved. */
