@@ -69,7 +69,7 @@ func (e *editor) editorRefreshScreen() {
 	if row != nil {
 		for j = e.point.co; j < (e.point.c + e.point.co); j++ {
 			if j < row.size && row.runes[j] == Tab {
-				cx += 7 - ((cx) % 8)
+				cx += 3 //7 - ((cx) % 8)
 			}
 			cx++
 		}

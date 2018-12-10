@@ -154,6 +154,11 @@ func (e *editor) initEditor() {
 	e.bgcolor = termbox.ColorDefault //termbox.ColorWhite
 }
 
+func (e *editor) resize() {
+	e.screencols, e.screenrows = termbox.Size()
+	e.screenrows -= 2 /* Get room for status bar. */
+}
+
 // Start runs an editor
 func (z *Ziti) Start(filename string) {
 
@@ -173,6 +178,7 @@ func (z *Ziti) Start(filename string) {
 		fmt.Printf("ziti: error %s", err)
 	}
 	termbox.SetOutputMode(termbox.OutputNormal)
+	termbox.SetInputMode(termbox.InputAlt | termbox.InputEsc | termbox.InputMouse)
 	termbox.Clear(termbox.ColorDefault, termbox.ColorDefault)
 
 	e.editorSetStatusMessage("HELP: Ctrl-S = save | Ctrl-Q = quit | Ctrl-F = find")

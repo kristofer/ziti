@@ -1,6 +1,10 @@
 package ziti
 
-import termbox "github.com/nsf/termbox-go"
+import (
+	"log"
+
+	termbox "github.com/nsf/termbox-go"
+)
 
 /* ========================= Editor events handling  ======================== */
 
@@ -88,7 +92,7 @@ func (e *editor) editorMoveCursor(rch termbox.Key) {
 /* Process events arriving from the standard input, which is, the user
  * is typing stuff on the terminal. */
 func (e *editor) editorProcessEvent(ev termbox.Event) {
-
+	log.Printf("editorProcessEvent %#v\n", ev)
 	if ev.Ch != 0 {
 		e.editorInsertChar(ev.Ch)
 		return
@@ -132,6 +136,7 @@ func (e *editor) editorProcessEvent(ev termbox.Event) {
 		e.editorDelChar()
 	default:
 	}
+
 	switch ev.Key {
 	case KeyNull:
 		e.setMark()
@@ -160,8 +165,33 @@ func (e *editor) editorProcessEvent(ev termbox.Event) {
 		e.editorRefreshScreen()
 	case Esc:
 		/* Nothing to do for Esc in this mode. */
+
 	default:
 
 	}
 	//e.quitTimes = 2
+
+	switch ev.Type {
+	case termbox.EventMouse:
+		//termbox.Clear(termbox.ColorDefault, termbox.ColorDefault)
+		e.editorSetStatusMessage("Mouse: c %d, r %d ", ev.MouseX+1, ev.MouseY+1)
+		e.setPointForMouse(ev.MouseX, ev.MouseY)
+		return
+	case termbox.EventResize:
+		e.resize()
+		return
+	default:
+	}
+}
+
+func (e *editor) setPointForMouse(mc, mr int) {
+	if mr > e.screenrows {
+		mr = e.screenrows
+	}
+	line := e.row[e.point.r+e.point.ro]
+	if mc > (line.size) {
+		mc = line.size
+	}
+	e.point.c = mc
+	e.point.r = mr
 }
