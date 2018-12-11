@@ -25,9 +25,7 @@ func (e *editor) editorRefreshScreen() {
 				if len > e.screencols {
 					len = e.screencols
 				}
-
 				for j := 0; j < len; j++ {
-
 					termbox.SetCell(j, y, r.render[j], e.fgcolor, e.bgcolor)
 				}
 			}
@@ -59,7 +57,13 @@ func (e *editor) editorRefreshScreen() {
 	/* Put cursor at its currentLine position. Note that the horizontal position
 	 * at which the cursor is displayed may be different compared to 'e.point.c'
 	 * because of Tabs. */
-	j := 0
+	cx := e.adjustCursor()
+
+	termbox.SetCursor(cx, e.point.r)
+	termbox.Flush()
+}
+
+func (e *editor) adjustCursor() int {
 	cx := 0
 	filerow := e.point.ro + e.point.r
 	var row *erow // := nil
@@ -67,17 +71,15 @@ func (e *editor) editorRefreshScreen() {
 		row = e.row[filerow]
 	}
 	if row != nil {
-		for j = e.point.co; j < (e.point.c + e.point.co); j++ {
+		for j := e.point.co; j < (e.point.c + e.point.co); j++ {
 			if j < row.size && row.runes[j] == Tab {
-				cx += 3 //7 - ((cx) % 8)
+				cx = cx + 3 //7 - ((cx) % 8)
 			}
-			cx++
+			cx = cx + 1
 		}
 	}
-	termbox.SetCursor(cx, e.point.r)
-	termbox.Flush()
+	return cx
 }
-
 func drawline(y int, fg, bg termbox.Attribute, msg string) {
 	x := 0
 	for _, c := range msg {

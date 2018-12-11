@@ -4,13 +4,8 @@ package ziti
 
 /* Update the rendered version and the syntax highlight of a row. */
 func (e *editor) editorUpdateRow(row *erow) {
-	tabs := 0
-	for j := 0; j < row.size; j++ {
-		if row.runes[j] == Tab {
-			tabs++
-		}
-	}
-	row.render = make([]rune, len(row.runes)+tabs*4)
+	tabs := e.countTabs(row, row.size-1)
+	row.render = make([]rune, len(row.runes)+tabs*tabWidth)
 	row.rsize = len(row.render)
 	/* Create a version of the row we can directly print on the screen */
 	idx := 0
@@ -18,7 +13,7 @@ func (e *editor) editorUpdateRow(row *erow) {
 		if row.runes[j] == Tab {
 			row.render[idx] = ' '
 			idx++
-			for (idx)%4 != 0 { // +1?
+			for (idx)%tabWidth != 0 { // +1?
 				row.render[idx] = ' '
 				idx++
 			}
@@ -28,6 +23,20 @@ func (e *editor) editorUpdateRow(row *erow) {
 		}
 	}
 	//row.rsize = idx
+}
+
+func (e *editor) countTabs(row *erow, toCol int) int {
+	tabs := 0
+	for j := 0; j <= toCol; j++ {
+		if row.runes[j] == Tab {
+			tabs++
+		}
+	}
+	return tabs
+}
+
+func (e *editor) negativeOffsetFor(tabs int) int {
+	return -1.0 * (tabs * tabWidth)
 }
 
 /* Insert a row at the specified position, shifting the other rows on the bottom

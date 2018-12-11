@@ -45,6 +45,7 @@ import (
  */
 
 const zitiVersion = "1.2"
+const tabWidth = 4
 
 // Ziti is the top-level exported type
 type Ziti struct {

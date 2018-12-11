@@ -188,10 +188,40 @@ func (e *editor) setPointForMouse(mc, mr int) {
 	if mr > e.screenrows {
 		mr = e.screenrows
 	}
+	if mr >= e.numrows {
+		mr = e.numrows - 1
+	}
 	line := e.row[e.point.r+e.point.ro]
-	if mc > (line.size) {
+	if mc >= line.size {
 		mc = line.size
+	}
+	if mc > 0 && mc < line.size {
+		mc = e.mapRenderToRunes(line, mc)
+		//log.Printf("mc %d\n", mc)
 	}
 	e.point.c = mc
 	e.point.r = mr
+}
+
+// mapRenderToRunes should map screencolumn to runes column through the render line
+func (e *editor) mapRenderToRunes(row *erow, col int) int {
+	nc := 0
+	row.rsize = len(row.render)
+	hits := make([]int, row.rsize)
+	idx := 0
+	for j := 0; j < row.size; j++ {
+		if row.runes[j] == Tab {
+			hits[idx] = j
+			idx++
+			for (idx)%tabWidth != 0 { // +1?
+				hits[idx] = j
+				idx++
+			}
+		} else {
+			hits[idx] = j
+			idx++
+		}
+	}
+	nc = hits[col]
+	return nc
 }
