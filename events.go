@@ -1,8 +1,6 @@
 package ziti
 
 import (
-	"log"
-
 	termbox "github.com/nsf/termbox-go"
 )
 
@@ -92,7 +90,7 @@ func (e *editor) editorMoveCursor(rch termbox.Key) {
 /* Process events arriving from the standard input, which is, the user
  * is typing stuff on the terminal. */
 func (e *editor) editorProcessEvent(ev termbox.Event) {
-	log.Printf("editorProcessEvent %#v\n", ev)
+	//log.Printf("editorProcessEvent %#v\n", ev)
 	if ev.Ch != 0 {
 		e.editorInsertChar(ev.Ch)
 		return
