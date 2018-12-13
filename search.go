@@ -1,8 +1,6 @@
 package ziti
 
 import (
-	"log"
-
 	termbox "github.com/nsf/termbox-go"
 )
 
@@ -28,7 +26,7 @@ func (e *editor) searchForward(startr, startc int, stext string) (fr, rc int) {
 				ss++
 			} else {
 				if ss == len(s) {
-					log.Println("found", r, c)
+					//log.Println("found", r, c)
 					return r, c
 				}
 				if s[ss] != rch {
@@ -63,7 +61,7 @@ func (e *editor) searchBackwards(startr, startc int, stext string) (fr, fc int) 
 	r := startr
 	//log.Printf("before lop r %d c %d\n", r, c)
 	for r > -1 {
-		log.Printf("r is %d\n", r)
+		//rintf("r is %d\n", r)
 		for c >= 0 && c < e.row[r].size {
 			rch := e.runeAt(r, c)
 			if ss < len(s) && s[ss] == rch {
@@ -75,7 +73,7 @@ func (e *editor) searchBackwards(startr, startc int, stext string) (fr, fc int) 
 			}
 
 			if ss == len(s) {
-				log.Println("found", r, c)
+				//log.Println("found", r, c)
 				return fr, fc
 			}
 			c--
