@@ -68,12 +68,12 @@ func (e *editor) editorRefreshScreen() {
 	 * at which the cursor is displayed may be different compared to 'e.point.c'
 	 * because of Tabs. */
 	cx := e.adjustCursor()
-	// filerow := e.point.ro + e.point.r
-	// for j := lastSelCol; j < cx; j++ {
-	// 	if e.markSet == true {
-	// 		termbox.SetCell(j, e.point.r, e.row[filerow].render[j], e.fgcolor|termbox.AttrUnderline, e.bgcolor)
-	// 	}
-	// }
+	filerow := e.point.ro + e.point.r
+	for j := e.point.co + e.point.c; j < cx; j++ {
+		if e.markSet == true {
+			termbox.SetCell(j, e.point.r, e.row[filerow].render[j], e.fgcolor|termbox.AttrUnderline, e.bgcolor)
+		}
+	}
 
 	termbox.SetCursor(cx, e.point.r)
 	termbox.Flush()
@@ -87,7 +87,7 @@ func (e *editor) inSelectedRegion(c, r int) bool {
 	if r < sr || r > er {
 		return false
 	}
-	if r == sr && r == er && c > ec {
+	if r == sr && r == er && c >= ec {
 		return false
 	}
 	if r == sr && c >= sc {
@@ -99,7 +99,7 @@ func (e *editor) inSelectedRegion(c, r int) bool {
 	if r > sr && r < er {
 		return true
 	}
-	if r == er && c <= ec {
+	if r == er && c < ec {
 		return true
 	}
 	return false
