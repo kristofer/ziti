@@ -163,7 +163,9 @@ func (e *editor) editorProcessEvent(ev termbox.Event) {
 		e.editorRefreshScreen()
 	case Esc:
 		/* Nothing to do for Esc in this mode. */
-
+	case termbox.KeyCtrlG:
+		e.editorSetStatusMessage("Mark cleared.")
+		e.noMark()
 	default:
 
 	}

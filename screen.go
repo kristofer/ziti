@@ -12,6 +12,7 @@ import (
 /* This function writes the whole screen using termbox-go */
 func (e *editor) editorRefreshScreen() {
 	termbox.Clear(termbox.ColorBlack, termbox.ColorDefault)
+	// lastSelCol := -1
 	// Draw the runes on the screen
 	for y := 0; y < e.screenrows; y++ {
 		filerow := e.point.ro + y
@@ -26,7 +27,16 @@ func (e *editor) editorRefreshScreen() {
 					len = e.screencols
 				}
 				for j := 0; j < len; j++ {
-					termbox.SetCell(j, y, r.render[j], e.fgcolor, e.bgcolor)
+					runeToPrint := r.render[j]
+					if r.render[j] == Tab {
+						runeToPrint = ' '
+					}
+					if e.inSelectedRegion(j, filerow) {
+						termbox.SetCell(j, y, runeToPrint, e.fgcolor|termbox.AttrUnderline, e.bgcolor)
+						// lastSelCol = j
+					} else {
+						termbox.SetCell(j, y, runeToPrint, e.fgcolor, e.bgcolor)
+					}
 				}
 			}
 		}
@@ -58,9 +68,41 @@ func (e *editor) editorRefreshScreen() {
 	 * at which the cursor is displayed may be different compared to 'e.point.c'
 	 * because of Tabs. */
 	cx := e.adjustCursor()
+	// filerow := e.point.ro + e.point.r
+	// for j := lastSelCol; j < cx; j++ {
+	// 	if e.markSet == true {
+	// 		termbox.SetCell(j, e.point.r, e.row[filerow].render[j], e.fgcolor|termbox.AttrUnderline, e.bgcolor)
+	// 	}
+	// }
 
 	termbox.SetCursor(cx, e.point.r)
 	termbox.Flush()
+}
+
+func (e *editor) inSelectedRegion(c, r int) bool {
+	if e.markSet == false {
+		return false
+	}
+	sr, sc, er, ec, _ := swapCursorsMaybe(e.mark.r+e.mark.ro, e.mark.c+e.mark.co, e.point.ro+e.point.r, e.point.co+e.point.c)
+	if r < sr || r > er {
+		return false
+	}
+	if r == sr && r == er && c > ec {
+		return false
+	}
+	if r == sr && c >= sc {
+		return true
+	}
+	if r == sr && c < sc {
+		return false
+	}
+	if r > sr && r < er {
+		return true
+	}
+	if r == er && c <= ec {
+		return true
+	}
+	return false
 }
 
 func (e *editor) adjustCursor() int {

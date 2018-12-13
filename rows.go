@@ -11,10 +11,10 @@ func (e *editor) editorUpdateRow(row *erow) {
 	idx := 0
 	for j := 0; j < row.size; j++ {
 		if row.runes[j] == Tab {
-			row.render[idx] = ' '
+			row.render[idx] = Tab //' '
 			idx++
 			for (idx)%tabWidth != 0 { // +1?
-				row.render[idx] = ' '
+				row.render[idx] = Tab //' '
 				idx++
 			}
 		} else {

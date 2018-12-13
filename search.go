@@ -138,10 +138,8 @@ func (e *editor) editorFind() {
 				lastLineMatch, lastColMatch = startrow, startcol
 				findDirection = -1
 			case termbox.KeyCtrlG, termbox.KeyEsc:
-				e.point.c = savedCx
-				e.point.r = savedCy
-				e.point.co = savedColoff
-				e.point.ro = savedRowoff
+				e.point.c, e.point.r = savedCx, savedCy
+				e.point.co, e.point.ro = savedColoff, savedRowoff
 				e.editorSetStatusMessage("")
 				return
 			case termbox.KeyArrowDown, termbox.KeyArrowRight:

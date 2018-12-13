@@ -140,10 +140,8 @@ type State struct {
 // NewEditor generates a new editor for use
 func (e *editor) initEditor() {
 	e.done = false
-	e.point.c = 0
-	e.point.r = 0
-	e.point.ro = 0
-	e.point.co = 0
+	e.point.c, e.point.r = 0, 0
+	e.point.ro, e.point.co = 0, 0
 	e.numrows = 0
 	e.row = nil
 	e.dirty = false
@@ -151,8 +149,7 @@ func (e *editor) initEditor() {
 	e.screencols, e.screenrows = termbox.Size()
 	e.screenrows -= 2 /* Get room for status bar. */
 	e.quitTimes = 3
-	e.fgcolor = termbox.ColorDefault //termbox.ColorBlack
-	e.bgcolor = termbox.ColorDefault //termbox.ColorWhite
+	e.fgcolor, e.bgcolor = termbox.ColorDefault, termbox.ColorDefault // retrieved from environment
 }
 
 func (e *editor) resize() {
