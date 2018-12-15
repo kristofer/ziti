@@ -17,3 +17,7 @@ func (e *editor) nextBuffer() {
 	}
 	e.cb = e.buffers[idx+1]
 }
+
+func (e *editor) listBuffers() {
+	
+}

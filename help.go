@@ -63,5 +63,6 @@ func (e *editor) loadHelp() error {
 	}
 
 	e.cb.dirty = false
+	e.cb.readonly = true
 	return nil
 }

@@ -8,7 +8,7 @@ import (
 )
 
 /* =================== FILE OPS ==============================*/
-/* Load the specified text file into the editor return any error*/
+/* Load the specified text file into the current buffer return any error*/
 func (e *editor) editorOpen(filename string) error {
 
 	// open the file filename

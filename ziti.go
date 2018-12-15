@@ -89,7 +89,8 @@ type buffer struct {
 	numrows  int     /* Number of rows in file */
 	rows     []*erow /* Rows */
 	dirty    bool    /* File modified but not saved. */
-	filename string  /* Currently open filename */
+	readonly bool
+	filename string /* Currently open filename */
 }
 
 func (e *editor) checkErr(er error) {
@@ -164,6 +165,10 @@ func (e *editor) initEditor() {
 func (e *editor) resize() {
 	e.screencols, e.screenrows = termbox.Size()
 	e.screenrows -= 2 /* Get room for status bar. */
+}
+
+func (e *editor) readOnly() {
+	e.editorSetStatusMessage("buffer %s is Read Only", e.cb.filename)
 }
 
 // Start runs an editor

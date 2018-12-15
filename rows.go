@@ -42,6 +42,10 @@ func (e *editor) negativeOffsetFor(tabs int) int {
 /* Insert a row at the specified position, shifting the other rows on the bottom
  * if required. */
 func (e *editor) editorInsertRow(at int, s string) {
+	if e.cb.readonly {
+		e.readOnly()
+		return
+	}
 	if at > e.cb.numrows {
 		return
 	}
@@ -64,6 +68,10 @@ func (e *editor) editorInsertRow(at int, s string) {
 }
 
 func (e *editor) editorDelRow(at int) {
+	if e.cb.readonly {
+		e.readOnly()
+		return
+	}
 	if len(e.cb.rows) <= at {
 		return
 	}
@@ -95,6 +103,10 @@ func insertRune(slice []rune, index int, value rune) []rune {
 /* Insert a character at the specified position in a row, moving the remaining
  * runes on the right if needed. */
 func (e *editor) editorRowInsertChar(row *erow, at int, rch rune) {
+	if e.cb.readonly {
+		e.readOnly()
+		return
+	}
 	row.runes = insertRune(row.runes, at, rch)
 	row.size = len(row.runes)
 	e.editorUpdateRow(row)
@@ -103,6 +115,10 @@ func (e *editor) editorRowInsertChar(row *erow, at int, rch rune) {
 
 /* Append the string 's' at the end of a row */
 func (e *editor) editorRowAppendString(row *erow, s string) { //}, size_t len) {
+	if e.cb.readonly {
+		e.readOnly()
+		return
+	}
 	row.runes = append(row.runes, []rune(s)...)
 	row.size = len(row.runes)
 	e.editorUpdateRow(row)
@@ -111,6 +127,10 @@ func (e *editor) editorRowAppendString(row *erow, s string) { //}, size_t len) {
 
 /* Delete the character at offset 'at' from the specified row. */
 func (e *editor) editorRowDelChar(row *erow, at int) {
+	if e.cb.readonly {
+		e.readOnly()
+		return
+	}
 	if row.size <= at {
 		return
 	}
@@ -121,6 +141,10 @@ func (e *editor) editorRowDelChar(row *erow, at int) {
 
 /* Insert the specified char at the currentLine prompt position. */
 func (e *editor) editorInsertChar(rch rune) {
+	if e.cb.readonly {
+		e.readOnly()
+		return
+	}
 	filerow := e.cb.point.ro + e.cb.point.r
 	filecol := e.cb.point.co + e.cb.point.c
 	var row *erow
@@ -191,6 +215,10 @@ func (e *editor) fixcursor() {
 
 /* Delete the char at the currentLine cursor position. */
 func (e *editor) editorDelChar() {
+	if e.cb.readonly {
+		e.readOnly()
+		return
+	}
 	filerow := e.cb.point.ro + e.cb.point.r
 	filecol := e.cb.point.co + e.cb.point.c
 	var row *erow
