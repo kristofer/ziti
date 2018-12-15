@@ -62,10 +62,10 @@ It's a very simple editor, with kinda-"Mac-Emacs"-like key bindings. It uses `go
 
 The central data structure is an array of lines (type erow struct). Each line in the file has a struct, which contains an array of rune. (If you're not familiar with Go's _runes_, they are Go's unicode code points (or characters))
 
-Single file, no buffers, no window splits. One _mini mode_, for the search modal operations.
+Multiple buffers, but no window splits. Two _mini modes_,  one for the search modal operations, and
+one for opening files.
 
-But the goroutine attached to events coming from termbox-go is pretty cool. Yet another real reason that Go routines
-are handy.
+Notice the goroutine attached to events coming from termbox-go, that is pretty cool. Yet another real reason that Go routines are handy.
 
-Ziti was written in Go by K Younger and is released
-under the BSD 2 clause license.
+_Ziti was written in Go by K Younger and is released
+under the BSD 2 clause license._
