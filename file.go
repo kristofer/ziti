@@ -18,32 +18,32 @@ func (e *editor) editorOpen(filename string) error {
 		log.Fatal(err)
 	}
 	defer file.Close()
-	e.filename = filename
+	e.cb.filename = filename
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		// does the line contain the newline?
 		line := scanner.Text()
-		e.editorInsertRow(e.numrows, line)
+		e.editorInsertRow(e.cb.numrows, line)
 	}
 
 	if err := scanner.Err(); err != nil {
 		log.Fatal(err)
 	}
 
-	e.dirty = false
+	e.cb.dirty = false
 	return nil
 }
 
 /* Save the currentLine file on disk. Return 0 on success, 1 on error. */
 func (e *editor) editorSave() error {
-	file, err := os.OpenFile(e.filename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+	file, err := os.OpenFile(e.cb.filename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
 		return err
 	}
 	defer file.Close()
 	w := bufio.NewWriter(file)
 	totalbytes := 0
-	for _, line := range e.row {
+	for _, line := range e.cb.rows {
 		totalbytes += len(line.runes) + 1
 		fmt.Fprintln(w, string(line.runes))
 	}
@@ -51,7 +51,7 @@ func (e *editor) editorSave() error {
 	e.checkErr(err)
 	if err == nil {
 		e.editorSetStatusMessage("Saved %d bytes.", totalbytes)
-		e.dirty = false
+		e.cb.dirty = false
 	}
 	return err
 }

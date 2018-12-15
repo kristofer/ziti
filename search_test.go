@@ -13,7 +13,7 @@ func TestSearchForward(t *testing.T) {
 	e := editor{}
 	e.initEditor()
 	//e.editorOpen("foo")
-	e.editorInsertRow(e.numrows, s)
+	e.editorInsertRow(e.cb.numrows, s)
 	r, c := e.searchForward(0, 0, "dolor")
 	assert.Equal(t, 0, r)
 	assert.Equal(t, 17, c)
@@ -40,7 +40,7 @@ func TestSearchBackwards(t *testing.T) {
 	e := editor{}
 	e.initEditor()
 	//e.editorOpen("foo")
-	e.editorInsertRow(e.numrows, s)
+	e.editorInsertRow(e.cb.numrows, s)
 	r, c := 0, 0
 	r, c = e.searchBackwards(0, 10, "Lorem")
 	assert.Equal(t, 0, r)
@@ -74,8 +74,8 @@ func Test2SearchBackwards(t *testing.T) {
 	e := editor{}
 	e.initEditor()
 	//e.editorOpen("foo")
-	e.editorInsertRow(e.numrows, s)
-	e.editorInsertRow(e.numrows, u)
+	e.editorInsertRow(e.cb.numrows, s)
+	e.editorInsertRow(e.cb.numrows, u)
 	r, c := 0, 0
 	r, c = e.searchBackwards(0, 10, "Lorem")
 	assert.Equal(t, 0, r)

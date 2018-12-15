@@ -15,13 +15,13 @@ func (e *editor) editorRefreshScreen() {
 	// lastSelCol := -1
 	// Draw the runes on the screen
 	for y := 0; y < e.screenrows; y++ {
-		filerow := e.point.ro + y
+		filerow := e.cb.point.ro + y
 
-		if filerow >= e.numrows {
+		if filerow >= e.cb.numrows {
 			drawline(y, e.fgcolor, e.bgcolor, "~")
 		} else {
-			r := e.row[filerow]
-			len := r.rsize - e.point.co
+			r := e.cb.rows[filerow]
+			len := r.rsize - e.cb.point.co
 			if len > 0 {
 				if len > e.screencols {
 					len = e.screencols
@@ -43,11 +43,11 @@ func (e *editor) editorRefreshScreen() {
 	}
 	/* Create a two rows for status. First row: */
 	dirtyflag := ""
-	if e.dirty {
+	if e.cb.dirty {
 		dirtyflag = "(modified)"
 	}
 	status := fmt.Sprintf("-- %s - %d lines - %d/%d - %s",
-		e.filename, e.numrows, e.point.ro+e.point.r+1, e.point.co+e.point.c+1, dirtyflag) //e.dirty ? "(modified)" : "")
+		e.cb.filename, e.cb.numrows, e.cb.point.ro+e.cb.point.r+1, e.cb.point.co+e.cb.point.c+1, dirtyflag) //e.cb.dirty ? "(modified)" : "")
 	slen := len(status)
 	if slen > e.screencols {
 		slen = e.screencols
@@ -65,25 +65,25 @@ func (e *editor) editorRefreshScreen() {
 		drawline(e.screenrows+1, e.fgcolor, e.bgcolor, " ")
 	}
 	/* Put cursor at its currentLine position. Note that the horizontal position
-	 * at which the cursor is displayed may be different compared to 'e.point.c'
+	 * at which the cursor is displayed may be different compared to 'e.cb.point.c'
 	 * because of Tabs. */
 	cx := e.adjustCursor()
-	filerow := e.point.ro + e.point.r
-	for j := e.point.co + e.point.c; j < cx; j++ {
-		if e.markSet == true {
-			termbox.SetCell(j, e.point.r, e.row[filerow].render[j], e.fgcolor|termbox.AttrUnderline, e.bgcolor)
+	filerow := e.cb.point.ro + e.cb.point.r
+	for j := e.cb.point.co + e.cb.point.c; j < cx; j++ {
+		if e.cb.markSet == true {
+			termbox.SetCell(j, e.cb.point.r, e.cb.rows[filerow].render[j], e.fgcolor|termbox.AttrUnderline, e.bgcolor)
 		}
 	}
 
-	termbox.SetCursor(cx, e.point.r)
+	termbox.SetCursor(cx, e.cb.point.r)
 	termbox.Flush()
 }
 
 func (e *editor) inSelectedRegion(c, r int) bool {
-	if e.markSet == false {
+	if e.cb.markSet == false {
 		return false
 	}
-	sr, sc, er, ec, _ := swapCursorsMaybe(e.mark.r+e.mark.ro, e.mark.c+e.mark.co, e.point.ro+e.point.r, e.point.co+e.point.c)
+	sr, sc, er, ec, _ := swapCursorsMaybe(e.cb.mark.r+e.cb.mark.ro, e.cb.mark.c+e.cb.mark.co, e.cb.point.ro+e.cb.point.r, e.cb.point.co+e.cb.point.c)
 	if r < sr || r > er {
 		return false
 	}
@@ -107,13 +107,13 @@ func (e *editor) inSelectedRegion(c, r int) bool {
 
 func (e *editor) adjustCursor() int {
 	cx := 0
-	filerow := e.point.ro + e.point.r
+	filerow := e.cb.point.ro + e.cb.point.r
 	var row *erow // := nil
-	if filerow < e.numrows {
-		row = e.row[filerow]
+	if filerow < e.cb.numrows {
+		row = e.cb.rows[filerow]
 	}
 	if row != nil {
-		for j := e.point.co; j < (e.point.c + e.point.co); j++ {
+		for j := e.cb.point.co; j < (e.cb.point.c + e.cb.point.co); j++ {
 			if j < row.size && row.runes[j] == Tab {
 				cx = cx + 3 //7 - ((cx) % 8)
 			}

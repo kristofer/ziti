@@ -1,14 +1,14 @@
 package ziti
 
 func (e *editor) setMark() {
-	e.mark.r, e.mark.c = e.point.r, e.point.c
-	e.mark.ro, e.mark.co = e.point.ro, e.point.co
-	e.markSet = true
-	e.editorSetStatusMessage("Mark Set (%d,%d)", e.mark.r+e.mark.ro, e.mark.c+e.mark.co)
+	e.cb.mark.r, e.cb.mark.c = e.cb.point.r, e.cb.point.c
+	e.cb.mark.ro, e.cb.mark.co = e.cb.point.ro, e.cb.point.co
+	e.cb.markSet = true
+	e.editorSetStatusMessage("Mark Set (%d,%d)", e.cb.mark.r+e.cb.mark.ro, e.cb.mark.c+e.cb.mark.co)
 }
 func (e *editor) noMark() bool {
-	e.markSet = false
-	return e.markSet
+	e.cb.markSet = false
+	return e.cb.markSet
 }
 func swapCursorsMaybe(mr, mc, cr, cc int) (sr, sc, er, ec int, f bool) {
 	if mr == cr {
@@ -28,26 +28,28 @@ func (e *editor) cutCopy(del bool) {
 		return
 	}
 	e.pastebuffer = ""
-	sr, sc, er, ec, reverse := swapCursorsMaybe(e.mark.r+e.mark.ro, e.mark.c+e.mark.co, e.point.ro+e.point.r, e.point.co+e.point.c)
+	sr, sc, er, ec, reverse := swapCursorsMaybe(e.cb.mark.r+e.cb.mark.ro, e.cb.mark.c+e.cb.mark.co, e.cb.point.ro+e.cb.point.r, e.cb.point.co+e.cb.point.c)
 	for i := sr; i <= er; i++ {
 		if sr == er {
-			l := e.row[i]
+			l := e.cb.rows[i]
 			for j := sc; j < ec; j++ {
 				e.pastebuffer = e.pastebuffer + string(l.runes[j])
 			}
 		} else if i == sr {
-			l := e.row[i]
+			l := e.cb.rows[i]
 			for j := sc; j < l.size; j++ {
 				e.pastebuffer = e.pastebuffer + string(l.runes[j])
 			}
 			e.pastebuffer = e.pastebuffer + "\n"
 		} else if i == er {
-			l := e.row[i]
-			for j := 0; j < ec; j++ {
-				e.pastebuffer = e.pastebuffer + string(l.runes[j])
+			if i < e.cb.numrows {
+				l := e.cb.rows[i]
+				for j := 0; j < ec; j++ {
+					e.pastebuffer = e.pastebuffer + string(l.runes[j])
+				}
 			}
 		} else {
-			l := e.row[i]
+			l := e.cb.rows[i]
 			for j := 0; j < l.size; j++ {
 				e.pastebuffer = e.pastebuffer + string(l.runes[j])
 			}
@@ -58,8 +60,8 @@ func (e *editor) cutCopy(del bool) {
 	if del == true {
 		c2Remove := len(e.pastebuffer)
 		if reverse { // move cursor to delete the right runes
-			e.point.r, e.point.c = e.mark.r, e.mark.c
-			e.point.ro, e.point.co = e.mark.ro, e.mark.co
+			e.cb.point.r, e.cb.point.c = e.cb.mark.r, e.cb.mark.c
+			e.cb.point.ro, e.cb.point.co = e.cb.mark.ro, e.cb.mark.co
 		}
 		for k := 0; k < c2Remove; k++ {
 			e.editorDelChar()
