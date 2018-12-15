@@ -115,6 +115,8 @@ func (e *editor) editorProcessEvent(ev termbox.Event) {
 		e.loadHelp()
 	case CtrlN:
 		e.nextBuffer()
+	case CtrlO:
+		e.loadFile()
 	case CtrlA:
 		e.movetoLineStart()
 	case CtrlE:

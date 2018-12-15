@@ -5,14 +5,21 @@ import (
 	"fmt"
 	"log"
 	"os"
+
+	termbox "github.com/nsf/termbox-go"
 )
 
 /* =================== FILE OPS ==============================*/
 /* Load the specified text file into the current buffer return any error*/
 func (e *editor) editorOpen(filename string) error {
 
+	found, err := e.indexOfBufferNamed(filename)
+	if err == nil {
+		e.cb = e.buffers[found]
+		return nil
+	}
+	e.addNewBuffer()
 	// open the file filename
-
 	file, err := os.OpenFile(filename, os.O_RDWR|os.O_CREATE, 0755)
 	if err != nil {
 		log.Fatal(err)
@@ -54,4 +61,48 @@ func (e *editor) editorSave() error {
 		e.cb.dirty = false
 	}
 	return err
+}
+
+func (e *editor) loadFile() error {
+	query := ""
+	for {
+		e.editorSetStatusMessage("Load File: %s", query)
+		e.editorRefreshScreen()
+		ev := <-e.events
+		if ev.Ch != 0 {
+			ch := ev.Ch
+			query = query + string(ch)
+		}
+		if ev.Ch == 0 {
+			switch ev.Key {
+			case termbox.KeyEnter:
+				err := e.editorOpen(query)
+				if err != nil {
+					e.editorSetStatusMessage("Error: %s", err)
+				}
+				return nil
+			case termbox.KeyCtrlC:
+				e.editorSetStatusMessage("killed.")
+				return nil
+			case termbox.KeyBackspace2, termbox.KeyBackspace:
+				if len(query) > 0 {
+					query = query[:len(query)-1]
+				} else {
+					query = ""
+				}
+			case termbox.KeyCtrlG:
+				e.editorSetStatusMessage("")
+				return nil
+
+			case termbox.KeyEsc:
+				e.editorSetStatusMessage("Escape not yet implemented")
+				return nil
+
+			default:
+				e.editorSetStatusMessage("Load File: %s", query)
+				e.editorRefreshScreen()
+			}
+		}
+
+	}
 }

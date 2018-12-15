@@ -2,6 +2,7 @@ package ziti
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"log"
 	"strings"
@@ -16,13 +17,13 @@ func (e *editor) indexOfBuffer(element *buffer) int {
 	return -1 //not found.
 }
 
-func (e *editor) indexOfBufferNamed(name string) int {
+func (e *editor) indexOfBufferNamed(name string) (int, error) {
 	for k, v := range e.buffers {
 		if strings.Compare(v.filename, name) == 0 {
-			return k
+			return k, nil
 		}
 	}
-	return -1 //not found.
+	return -1, errors.New("not found") //not found.
 }
 
 func (e *editor) nextBuffer() {
@@ -34,14 +35,19 @@ func (e *editor) nextBuffer() {
 	e.cb = e.buffers[idx+1]
 }
 
+func (e *editor) addNewBuffer() {
+	nb := &buffer{}
+	e.buffers = append(e.buffers, nb)
+	e.cb = nb
+	e.cb.filename = "*scratch*"
+}
+
 func (e *editor) listBuffers() {
-	found := e.indexOfBufferNamed(zitiListBuffers)
-	if found != -1 {
+	found, err := e.indexOfBufferNamed(zitiListBuffers)
+	if err == nil {
 		e.cb = e.buffers[found]
 	} else {
-		nb := &buffer{}
-		e.buffers = append(e.buffers, nb)
-		e.cb = nb
+		e.addNewBuffer()
 		e.cb.filename = zitiListBuffers
 	}
 	bufferlist := " ** Current Buffers\n\n"

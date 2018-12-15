@@ -115,6 +115,7 @@ const (
 	CtrlL     = 12 /* Ctrl+l redraw */
 	Enter     = 13 /* Enter */
 	CtrlN     = 14 /* Ctrl+n nextBuffer */
+	CtrlO     = 15 /* Ctrl+Oh load file */
 	CtrlQ     = 17 /* Ctrl-q quit*/
 	CtrlS     = 19 /* Ctrl-s save*/
 	CtrlU     = 21 /* Ctrl-u number of times??*/
@@ -150,14 +151,12 @@ type State struct {
 func (e *editor) initEditor() {
 	e.done = false
 	e.buffers = []*buffer{}
-	e.cb = &buffer{}
-	e.buffers = append(e.buffers, e.cb)
+	e.addNewBuffer()
 	e.cb.point.c, e.cb.point.r = 0, 0
 	e.cb.point.ro, e.cb.point.co = 0, 0
 	e.cb.numrows = 0
 	e.cb.rows = nil
 	e.cb.dirty = false
-	e.cb.filename = ""
 	e.screencols, e.screenrows = termbox.Size()
 	e.screenrows -= 2 /* Get room for status bar. */
 	e.quitTimes = 3
@@ -195,7 +194,7 @@ func (z *Ziti) Start(filename string) {
 	termbox.SetInputMode(termbox.InputAlt | termbox.InputEsc | termbox.InputMouse)
 	termbox.Clear(termbox.ColorDefault, termbox.ColorDefault)
 
-	e.editorSetStatusMessage("HELP: Ctrl-S = save | Ctrl-Q = quit | Ctrl-F = find")
+	e.editorSetStatusMessage("CTRL-Y = HELP | Ctrl-S = save | Ctrl-Q = quit | Ctrl-F = find ")
 
 	e.events = make(chan termbox.Event, 20)
 	go func() {

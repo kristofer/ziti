@@ -45,9 +45,7 @@ for a selection to start... sorry, it's not a real mouse based editor.)
 `
 
 func (e *editor) loadHelp() error {
-	nb := &buffer{}
-	e.buffers = append(e.buffers, nb)
-	e.cb = nb
+	e.addNewBuffer()
 	e.cb.filename = "*Ziti Help*"
 	scanner := bufio.NewScanner(strings.NewReader(helptext))
 	for scanner.Scan() {
