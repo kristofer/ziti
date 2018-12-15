@@ -44,7 +44,8 @@ import (
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-const zitiVersion = "1.2"
+const zitiVersion = "1.3"
+const zitiListBuffers = "*Ziti Buffers*"
 const tabWidth = 4
 
 // Ziti is the top-level exported type
@@ -69,22 +70,28 @@ type cursor struct {
 }
 type editor struct {
 	events        chan termbox.Event
-	point         cursor
-	mark          cursor
-	markSet       bool
+	buffers       []*buffer
+	cb            *buffer
 	screenrows    int /* Number of rows that we can show */
 	screencols    int /* Number of cols that we can show */
-	numrows       int /* Number of rows in file */
+	pastebuffer   string
 	quitTimes     int
 	done          bool
-	row           []*erow /* Rows */
-	dirty         bool    /* File modified but not saved. */
-	filename      string  /* Currently open filename */
 	statusmsg     string
 	statusmsgTime time.Time
-	pastebuffer   string
 	fgcolor       termbox.Attribute
 	bgcolor       termbox.Attribute
+}
+
+type buffer struct {
+	point    cursor
+	mark     cursor
+	markSet  bool
+	numrows  int     /* Number of rows in file */
+	rows     []*erow /* Rows */
+	dirty    bool    /* File modified but not saved. */
+	readonly bool
+	filename string /* Currently open filename */
 }
 
 func (e *editor) checkErr(er error) {
@@ -97,6 +104,7 @@ func (e *editor) checkErr(er error) {
 const (
 	KeyNull   = 0  /* NULL ctrl-space set mark */
 	CtrlA     = 1  /* Ctrl-a BOL */
+	CtrlB     = 2  /* Ctrl-B list buffers */
 	CtrlC     = 3  /* Ctrl-c  cop */
 	CtrlE     = 5  /* Ctrl-e  EOL */
 	CtrlD     = 4  /* Ctrl-d del forward? */
@@ -106,6 +114,8 @@ const (
 	CtrlK     = 11 /* Ctrl+k killToEOL */
 	CtrlL     = 12 /* Ctrl+l redraw */
 	Enter     = 13 /* Enter */
+	CtrlN     = 14 /* Ctrl+n nextBuffer */
+	CtrlO     = 15 /* Ctrl+Oh load file */
 	CtrlQ     = 17 /* Ctrl-q quit*/
 	CtrlS     = 19 /* Ctrl-s save*/
 	CtrlU     = 21 /* Ctrl-u number of times??*/
@@ -140,12 +150,13 @@ type State struct {
 // NewEditor generates a new editor for use
 func (e *editor) initEditor() {
 	e.done = false
-	e.point.c, e.point.r = 0, 0
-	e.point.ro, e.point.co = 0, 0
-	e.numrows = 0
-	e.row = nil
-	e.dirty = false
-	e.filename = ""
+	e.buffers = []*buffer{}
+	e.addNewBuffer()
+	e.cb.point.c, e.cb.point.r = 0, 0
+	e.cb.point.ro, e.cb.point.co = 0, 0
+	e.cb.numrows = 0
+	e.cb.rows = nil
+	e.cb.dirty = false
 	e.screencols, e.screenrows = termbox.Size()
 	e.screenrows -= 2 /* Get room for status bar. */
 	e.quitTimes = 3
@@ -155,6 +166,10 @@ func (e *editor) initEditor() {
 func (e *editor) resize() {
 	e.screencols, e.screenrows = termbox.Size()
 	e.screenrows -= 2 /* Get room for status bar. */
+}
+
+func (e *editor) readOnly() {
+	e.editorSetStatusMessage("buffer %s is Read Only", e.cb.filename)
 }
 
 // Start runs an editor
@@ -179,7 +194,7 @@ func (z *Ziti) Start(filename string) {
 	termbox.SetInputMode(termbox.InputAlt | termbox.InputEsc | termbox.InputMouse)
 	termbox.Clear(termbox.ColorDefault, termbox.ColorDefault)
 
-	e.editorSetStatusMessage("HELP: Ctrl-S = save | Ctrl-Q = quit | Ctrl-F = find")
+	e.editorSetStatusMessage("CTRL-Y = HELP | Ctrl-S = save | Ctrl-Q = quit | Ctrl-F = find ")
 
 	e.events = make(chan termbox.Event, 20)
 	go func() {

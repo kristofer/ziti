@@ -7,7 +7,7 @@ import (
 /* =============================== Find mode ================================ */
 
 func (e *editor) runeAt(r, c int) rune {
-	return e.row[r].runes[c]
+	return e.cb.rows[r].runes[c]
 }
 
 func (e *editor) searchForward(startr, startc int, stext string) (fr, rc int) {
@@ -19,8 +19,8 @@ func (e *editor) searchForward(startr, startc int, stext string) (fr, rc int) {
 
 	c := startc
 	r := startr
-	for r < e.numrows {
-		for c < e.row[r].size {
+	for r < e.cb.numrows {
+		for c < e.cb.rows[r].size {
 			rch := e.runeAt(r, c)
 			if ss < len(s) && s[ss] == rch {
 				ss++
@@ -62,7 +62,7 @@ func (e *editor) searchBackwards(startr, startc int, stext string) (fr, fc int) 
 	//log.Printf("before lop r %d c %d\n", r, c)
 	for r > -1 {
 		//rintf("r is %d\n", r)
-		for c >= 0 && c < e.row[r].size {
+		for c >= 0 && c < e.cb.rows[r].size {
 			rch := e.runeAt(r, c)
 			if ss < len(s) && s[ss] == rch {
 				fr = r
@@ -80,7 +80,7 @@ func (e *editor) searchBackwards(startr, startc int, stext string) (fr, fc int) 
 		}
 		if r > 0 {
 			r--
-			c = e.row[r].size - 1
+			c = e.cb.rows[r].size - 1
 		} else {
 			break
 		}
@@ -91,15 +91,15 @@ func (e *editor) searchBackwards(startr, startc int, stext string) (fr, fc int) 
 
 func (e *editor) editorFind() {
 	query := ""
-	startrow := e.point.ro + e.point.r
-	startcol := e.point.co + e.point.c
+	startrow := e.cb.point.ro + e.cb.point.r
+	startcol := e.cb.point.co + e.cb.point.c
 	lastLineMatch := startrow /* Last line where a match was found. -1 for none. */
 	lastColMatch := startcol  // last column where a match was found
 	findDirection := 1        /* if 1 search next, if -1 search prev. */
 
 	/* Save the cursor position in order to restore it later. */
-	savedCx, savedCy := e.point.c, e.point.r
-	savedColoff, savedRowoff := e.point.co, e.point.ro
+	savedCx, savedCy := e.cb.point.c, e.cb.point.r
+	savedColoff, savedRowoff := e.cb.point.co, e.cb.point.ro
 
 	for {
 		e.editorSetStatusMessage("Search: %s (Use Esc/Arrows/Enter)", query)
@@ -136,8 +136,8 @@ func (e *editor) editorFind() {
 				lastLineMatch, lastColMatch = startrow, startcol
 				findDirection = -1
 			case termbox.KeyCtrlG, termbox.KeyEsc:
-				e.point.c, e.point.r = savedCx, savedCy
-				e.point.co, e.point.ro = savedColoff, savedRowoff
+				e.cb.point.c, e.cb.point.r = savedCx, savedCy
+				e.cb.point.co, e.cb.point.ro = savedColoff, savedRowoff
 				e.editorSetStatusMessage("")
 				return
 			case termbox.KeyArrowDown, termbox.KeyArrowRight:
@@ -163,15 +163,15 @@ func (e *editor) editorFind() {
 			if currentLine != -1 {
 				lastLineMatch = currentLine
 				lastColMatch = matchOffset
-				e.point.r = 0
-				e.point.c = matchOffset
-				e.point.ro = currentLine
-				e.point.co = 0
+				e.cb.point.r = 0
+				e.cb.point.c = matchOffset
+				e.cb.point.ro = currentLine
+				e.cb.point.co = 0
 				/* Scroll horizontally as needed. */
-				if e.point.c > e.screencols {
-					diff := e.point.c - e.screencols
-					e.point.c -= diff
-					e.point.co += diff
+				if e.cb.point.c > e.screencols {
+					diff := e.cb.point.c - e.screencols
+					e.cb.point.c -= diff
+					e.cb.point.co += diff
 				}
 			}
 		}

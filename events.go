@@ -8,81 +8,81 @@ import (
 
 /* Handle cursor position change because arrow keys were pressed. */
 func (e *editor) editorMoveCursor(rch termbox.Key) {
-	filerow := e.point.ro + e.point.r
-	filecol := e.point.co + e.point.c
+	filerow := e.cb.point.ro + e.cb.point.r
+	filecol := e.cb.point.co + e.cb.point.c
 	var row *erow
-	if filerow < e.numrows {
-		row = e.row[filerow]
+	if filerow < e.cb.numrows {
+		row = e.cb.rows[filerow]
 	}
 	switch rch {
 	case ArrowLeft:
-		if e.point.c == 0 {
-			if e.point.co != 0 {
-				e.point.co--
+		if e.cb.point.c == 0 {
+			if e.cb.point.co != 0 {
+				e.cb.point.co--
 			} else {
 				if filerow > 0 {
-					e.point.r--
-					e.point.c = e.row[filerow-1].size
-					if e.point.c > e.screencols-1 {
-						e.point.co = e.point.c - e.screencols + 1
-						e.point.c = e.screencols - 1
+					e.cb.point.r--
+					e.cb.point.c = e.cb.rows[filerow-1].size
+					if e.cb.point.c > e.screencols-1 {
+						e.cb.point.co = e.cb.point.c - e.screencols + 1
+						e.cb.point.c = e.screencols - 1
 					}
 				}
 			}
 		} else {
-			e.point.c--
+			e.cb.point.c--
 		}
 		break
 	case ArrowRight:
 		if row != nil && filecol < row.size {
-			if e.point.c == e.screencols-1 {
-				e.point.co++
+			if e.cb.point.c == e.screencols-1 {
+				e.cb.point.co++
 			} else {
-				e.point.c++
+				e.cb.point.c++
 			}
 		} else if row != nil && filecol == row.size {
-			e.point.c = 0
-			e.point.co = 0
-			if e.point.r == e.screenrows-1 {
-				e.point.ro++
+			e.cb.point.c = 0
+			e.cb.point.co = 0
+			if e.cb.point.r == e.screenrows-1 {
+				e.cb.point.ro++
 			} else {
-				e.point.r++
+				e.cb.point.r++
 			}
 		}
 		break
 	case ArrowUp:
-		if e.point.r == 0 {
-			if e.point.ro != 0 {
-				e.point.ro--
+		if e.cb.point.r == 0 {
+			if e.cb.point.ro != 0 {
+				e.cb.point.ro--
 			}
 		} else {
-			e.point.r--
+			e.cb.point.r--
 		}
 	case ArrowDown:
-		if filerow < e.numrows {
-			if e.point.r == e.screenrows-1 {
-				e.point.ro++
+		if filerow < e.cb.numrows {
+			if e.cb.point.r == e.screenrows-1 {
+				e.cb.point.ro++
 			} else {
-				e.point.r++
+				e.cb.point.r++
 			}
 		}
 	default:
 	}
 	/* Fix cx if the currentLine line has not enough runes. */
-	filerow = e.point.ro + e.point.r
-	filecol = e.point.co + e.point.c
-	if filerow < e.numrows {
-		row = e.row[filerow]
+	filerow = e.cb.point.ro + e.cb.point.r
+	filecol = e.cb.point.co + e.cb.point.c
+	if filerow < e.cb.numrows {
+		row = e.cb.rows[filerow]
 	}
 	rowlen := 0
 	if row != nil {
 		rowlen = len(row.runes)
 	}
 	if filecol > rowlen {
-		e.point.c -= filecol - rowlen
-		if e.point.c < 0 {
-			e.point.co += e.point.c
-			e.point.c = 0
+		e.cb.point.c -= filecol - rowlen
+		if e.cb.point.c < 0 {
+			e.cb.point.co += e.cb.point.c
+			e.cb.point.c = 0
 		}
 	}
 }
@@ -103,12 +103,20 @@ func (e *editor) editorProcessEvent(ev termbox.Event) {
 		e.editorInsertChar('\t')
 	case Enter: /* Enter */
 		e.editorInsertNewline()
+	case CtrlB:
+		e.listBuffers()
 	case CtrlC:
 		e.cutCopy(false)
 	case CtrlX:
 		e.cutCopy(true)
 	case CtrlV:
 		e.paste()
+	case CtrlY:
+		e.loadHelp()
+	case CtrlN:
+		e.nextBuffer()
+	case CtrlO:
+		e.loadFile()
 	case CtrlA:
 		e.movetoLineStart()
 	case CtrlE:
@@ -117,12 +125,12 @@ func (e *editor) editorProcessEvent(ev termbox.Event) {
 		e.killtoLineEnd()
 	case CtrlQ: /* Ctrl-q */
 		/* Quit if the file was already saved. */
-		if e.dirty && e.quitTimes > 0 {
+		if e.cb.dirty && e.quitTimes > 0 {
 			e.editorSetStatusMessage("WARNING!!! File has unsaved changes. Press Ctrl-Q %d more times to quit.", e.quitTimes)
 			e.quitTimes--
 		}
 		//fmt.Println("Done.")
-		if e.quitTimes == 0 || !e.dirty {
+		if e.quitTimes == 0 || !e.cb.dirty {
 			e.done = true
 		}
 	case CtrlS: /* Ctrl-s */
@@ -141,11 +149,11 @@ func (e *editor) editorProcessEvent(ev termbox.Event) {
 	case DelKey:
 		e.editorDelChar()
 	case PageUp, PageDown:
-		if ev.Key == PageUp && e.point.r != 0 {
-			e.point.r = 0
+		if ev.Key == PageUp && e.cb.point.r != 0 {
+			e.cb.point.r = 0
 		} else {
-			if ev.Key == PageDown && e.point.r != e.screenrows-1 {
-				e.point.r = e.screenrows - 1
+			if ev.Key == PageDown && e.cb.point.r != e.screenrows-1 {
+				e.cb.point.r = e.screenrows - 1
 			}
 		}
 		times := e.screenrows
@@ -188,10 +196,10 @@ func (e *editor) setPointForMouse(mc, mr int) {
 	if mr > e.screenrows {
 		mr = e.screenrows
 	}
-	if mr >= e.numrows {
-		mr = e.numrows - 1
+	if mr >= e.cb.numrows {
+		mr = e.cb.numrows - 1
 	}
-	line := e.row[e.point.r+e.point.ro]
+	line := e.cb.rows[e.cb.point.r+e.cb.point.ro]
 	if mc >= line.size {
 		mc = line.size
 	}
@@ -199,8 +207,8 @@ func (e *editor) setPointForMouse(mc, mr int) {
 		mc = e.mapRenderToRunes(line, mc)
 		//log.Printf("mc %d\n", mc)
 	}
-	e.point.c = mc
-	e.point.r = mr
+	e.cb.point.c = mc
+	e.cb.point.r = mr
 }
 
 // mapRenderToRunes should map screencolumn to runes column through the render line

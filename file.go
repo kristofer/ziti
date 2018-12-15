@@ -5,45 +5,52 @@ import (
 	"fmt"
 	"log"
 	"os"
+
+	termbox "github.com/nsf/termbox-go"
 )
 
 /* =================== FILE OPS ==============================*/
-/* Load the specified text file into the editor return any error*/
+/* Load the specified text file into the current buffer return any error*/
 func (e *editor) editorOpen(filename string) error {
 
+	found, err := e.indexOfBufferNamed(filename)
+	if err == nil {
+		e.cb = e.buffers[found]
+		return nil
+	}
+	e.addNewBuffer()
 	// open the file filename
-
 	file, err := os.OpenFile(filename, os.O_RDWR|os.O_CREATE, 0755)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer file.Close()
-	e.filename = filename
+	e.cb.filename = filename
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		// does the line contain the newline?
 		line := scanner.Text()
-		e.editorInsertRow(e.numrows, line)
+		e.editorInsertRow(e.cb.numrows, line)
 	}
 
 	if err := scanner.Err(); err != nil {
 		log.Fatal(err)
 	}
 
-	e.dirty = false
+	e.cb.dirty = false
 	return nil
 }
 
 /* Save the currentLine file on disk. Return 0 on success, 1 on error. */
 func (e *editor) editorSave() error {
-	file, err := os.OpenFile(e.filename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+	file, err := os.OpenFile(e.cb.filename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
 		return err
 	}
 	defer file.Close()
 	w := bufio.NewWriter(file)
 	totalbytes := 0
-	for _, line := range e.row {
+	for _, line := range e.cb.rows {
 		totalbytes += len(line.runes) + 1
 		fmt.Fprintln(w, string(line.runes))
 	}
@@ -51,7 +58,51 @@ func (e *editor) editorSave() error {
 	e.checkErr(err)
 	if err == nil {
 		e.editorSetStatusMessage("Saved %d bytes.", totalbytes)
-		e.dirty = false
+		e.cb.dirty = false
 	}
 	return err
+}
+
+func (e *editor) loadFile() error {
+	query := ""
+	for {
+		e.editorSetStatusMessage("Load File: %s", query)
+		e.editorRefreshScreen()
+		ev := <-e.events
+		if ev.Ch != 0 {
+			ch := ev.Ch
+			query = query + string(ch)
+		}
+		if ev.Ch == 0 {
+			switch ev.Key {
+			case termbox.KeyEnter:
+				err := e.editorOpen(query)
+				if err != nil {
+					e.editorSetStatusMessage("Error: %s", err)
+				}
+				return nil
+			case termbox.KeyCtrlC:
+				e.editorSetStatusMessage("killed.")
+				return nil
+			case termbox.KeyBackspace2, termbox.KeyBackspace:
+				if len(query) > 0 {
+					query = query[:len(query)-1]
+				} else {
+					query = ""
+				}
+			case termbox.KeyCtrlG:
+				e.editorSetStatusMessage("")
+				return nil
+
+			case termbox.KeyEsc:
+				e.editorSetStatusMessage("Escape not yet implemented")
+				return nil
+
+			default:
+				e.editorSetStatusMessage("Load File: %s", query)
+				e.editorRefreshScreen()
+			}
+		}
+
+	}
 }
