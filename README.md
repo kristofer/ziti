@@ -26,9 +26,9 @@ so, you may need to `go get github.com/nsf/termbox-go`
 * CTRL-A: Move to beginning of current line
 * CTRL-E: Move to end of current line
 * on mac keyboards:
- * FN+ArrowUp: PageUp (screen full)
- * FN+ArrowDown: PageDown (screen full)
- 
+  * FN+ArrowUp: PageUp (screen full)
+  * FN+ArrowDown: PageDown (screen full)
+
 #### File/Buffer 
 * CTRL-S: Save the file
 * CTRL-Q: Quit the editor
