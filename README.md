@@ -19,9 +19,17 @@ so, you may need to `go get github.com/nsf/termbox-go`
 
 ### Key Commands:
 
+#### Movement
 * CTRL-Y: HELP
 * Use ArrowKeys to move Cursor around.
-
+* Home, End, and PageUp & PageDown should work
+* CTRL-A: Move to beginning of current line
+* CTRL-E: Move to end of current line
+* on mac keyboards:
+ * FN+ArrowUp: PageUp (screen full)
+ * FN+ArrowDown: PageDown (screen full)
+ 
+#### File/Buffer 
 * CTRL-S: Save the file
 * CTRL-Q: Quit the editor
 * CTRL-F: Find string in file 
@@ -31,25 +39,17 @@ so, you may need to `go get github.com/nsf/termbox-go`
 * CTRL-O: (control oh) Open File into new buffer
 * CTRL-W: kill buffer (not yet)
 
-#### Cut/Copy/Paste
+#### Cut/Copy/Paste & Deletion
 * CTRL-Space: Set Mark
 * CTRL-X: Cut region from Mark to Cursor into paste buffer
 * CTRL-C: Copy region from Mark to Cursor into paste buffer
 * CTRL-V: Paste copied/cut region into file at Cursor
-Once you've set the Mark, as you move the cursor,
+_Once you've set the Mark, as you move the cursor,
 you should be getting underlined text showing the current
-selection/region.
-
-* Use Arrows to move, Home, End, and PageUp & PageDown should work
-* CTRL-A: Move to beginning of current line
-* CTRL-E: Move to end of current line
-
+selection/region._
 * Delete: to delete a rune backward
 * CTRL-K: killtoEndOfLine (once) removeLine (twice)
 
- on mac keyboards:
-* FN+ArrowUp: PageUp (screen full)
-* FN+ArrowDown: PageDown (screen full)
 
 Setting the cursor with a mouse click should work. (and so,
 it should work to set the selection. but hey, you MUST SetMark
