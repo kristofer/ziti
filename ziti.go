@@ -45,6 +45,7 @@ import (
  */
 
 const zitiVersion = "1.3"
+const zitiListBuffers = "*Ziti Buffers*"
 const tabWidth = 4
 
 // Ziti is the top-level exported type
@@ -103,6 +104,7 @@ func (e *editor) checkErr(er error) {
 const (
 	KeyNull   = 0  /* NULL ctrl-space set mark */
 	CtrlA     = 1  /* Ctrl-a BOL */
+	CtrlB     = 2  /* Ctrl-B list buffers */
 	CtrlC     = 3  /* Ctrl-c  cop */
 	CtrlE     = 5  /* Ctrl-e  EOL */
 	CtrlD     = 4  /* Ctrl-d del forward? */

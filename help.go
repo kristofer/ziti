@@ -16,6 +16,7 @@ const helptext = ` ** ZITI: Help on keyboard commands
  CTRL-F: Find string in file 
 	(ESC to exit search mode, arrows to navigate to next/prev find)
  CTRL-N: Next Buffer
+ CTRL-B: List all the buffers
  CTRL-O: (control oh) Open File into new buffer
  CTRL-W: kill buffer
 
@@ -44,9 +45,6 @@ for a selection to start... sorry, it's not a real mouse based editor.)
 `
 
 func (e *editor) loadHelp() error {
-
-	// open the file filename
-
 	nb := &buffer{}
 	e.buffers = append(e.buffers, nb)
 	e.cb = nb

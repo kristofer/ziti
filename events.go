@@ -103,6 +103,8 @@ func (e *editor) editorProcessEvent(ev termbox.Event) {
 		e.editorInsertChar('\t')
 	case Enter: /* Enter */
 		e.editorInsertNewline()
+	case CtrlB:
+		e.listBuffers()
 	case CtrlC:
 		e.cutCopy(false)
 	case CtrlX:
