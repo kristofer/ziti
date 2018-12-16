@@ -37,7 +37,7 @@ so, you may need to `go get github.com/nsf/termbox-go`
 * CTRL-N: Next Buffer
 * CTRL-B: List all the buffers
 * CTRL-O: (control oh) Open File into new buffer
-* CTRL-W: kill buffer (not yet)
+* CTRL-W: kill buffer
 
 #### Cut/Copy/Paste & Deletion
 * CTRL-Space: Set Mark

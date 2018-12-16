@@ -44,7 +44,7 @@ import (
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-const zitiVersion = "1.3"
+const zitiVersion = "1.4"
 const zitiListBuffers = "*Ziti Buffers*"
 const tabWidth = 4
 
