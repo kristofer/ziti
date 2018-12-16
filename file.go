@@ -43,6 +43,17 @@ func (e *editor) editorOpen(filename string) error {
 
 /* Save the currentLine file on disk. Return 0 on success, 1 on error. */
 func (e *editor) editorSave() error {
+	if e.cb.filename[:1] == "*" {
+		mesg := "Save File: %s"
+		input, err := e.getInput(mesg)
+		if err != nil {
+			e.editorSetStatusMessage(mesg, err)
+		}
+		if input == "" {
+			return nil
+		}
+		e.cb.filename = input
+	}
 	file, err := os.OpenFile(e.cb.filename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
 		return err
@@ -64,45 +75,58 @@ func (e *editor) editorSave() error {
 }
 
 func (e *editor) loadFile() error {
-	query := ""
+	mesg := "Load File: %s"
+	input, err := e.getInput(mesg)
+	if err != nil {
+		e.editorSetStatusMessage("Load File: %s", err)
+	}
+	if input == "" {
+		return nil
+	}
+	err = e.editorOpen(input)
+	if err != nil {
+		e.editorSetStatusMessage("Load File: Error: %s", err)
+	}
+	return nil
+}
+
+func (e *editor) getInput(mesg string) (string, error) {
+	input := ""
 	for {
-		e.editorSetStatusMessage("Load File: %s", query)
-		e.editorRefreshScreen()
+		e.editorSetStatusMessage(mesg, input)
+		e.editorRefreshScreen(false)
+		termbox.SetCursor(len(mesg)+len(input)-1, e.screenrows+1)
 		ev := <-e.events
 		if ev.Ch != 0 {
 			ch := ev.Ch
-			query = query + string(ch)
+			input = input + string(ch)
 		}
 		if ev.Ch == 0 {
 			switch ev.Key {
 			case termbox.KeyEnter:
-				err := e.editorOpen(query)
-				if err != nil {
-					e.editorSetStatusMessage("Error: %s", err)
-				}
-				return nil
+				return input, nil
 			case termbox.KeyCtrlC:
 				e.editorSetStatusMessage("killed.")
-				return nil
+				return "", nil
 			case termbox.KeyBackspace2, termbox.KeyBackspace:
-				if len(query) > 0 {
-					query = query[:len(query)-1]
+				if len(input) > 0 {
+					input = input[:len(input)-1]
 				} else {
-					query = ""
+					input = ""
 				}
 			case termbox.KeyCtrlG:
 				e.editorSetStatusMessage("")
-				return nil
+				return "", nil
 
 			case termbox.KeyEsc:
 				e.editorSetStatusMessage("Escape not yet implemented")
-				return nil
+				return "", nil
 
 			default:
-				e.editorSetStatusMessage("Load File: %s", query)
-				e.editorRefreshScreen()
+				e.editorSetStatusMessage(mesg, input)
+				e.editorRefreshScreen(false)
+				termbox.SetCursor(len(mesg)+len(input)-1, e.screenrows+1)
 			}
 		}
-
 	}
 }

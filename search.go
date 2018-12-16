@@ -100,10 +100,10 @@ func (e *editor) editorFind() {
 	/* Save the cursor position in order to restore it later. */
 	savedCx, savedCy := e.cb.point.c, e.cb.point.r
 	savedColoff, savedRowoff := e.cb.point.co, e.cb.point.ro
-
+	mesg := "Search: %s (Use Esc/Arrows/Enter)"
 	for {
-		e.editorSetStatusMessage("Search: %s (Use Esc/Arrows/Enter)", query)
-		e.editorRefreshScreen()
+		e.editorSetStatusMessage(mesg, query)
+		e.editorRefreshScreen(false)
 		ev := <-e.events
 		if ev.Ch != 0 {
 			ch := ev.Ch
@@ -145,8 +145,9 @@ func (e *editor) editorFind() {
 			case termbox.KeyArrowLeft, termbox.KeyArrowUp:
 				findDirection = -1
 			default:
-				e.editorSetStatusMessage("Search: %s (Use Esc/Arrows/Enter)", query)
-				e.editorRefreshScreen()
+				e.editorSetStatusMessage(mesg, query)
+				e.editorRefreshScreen(false)
+				termbox.SetCursor(len(mesg)+len(query), e.screenrows+1)
 				findDirection = 0
 			}
 		}

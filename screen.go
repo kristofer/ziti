@@ -10,7 +10,7 @@ import (
 /* ============================= Terminal update ============================ */
 
 /* This function writes the whole screen using termbox-go */
-func (e *editor) editorRefreshScreen() {
+func (e *editor) editorRefreshScreen(drawCursor bool) {
 	termbox.Clear(termbox.ColorBlack, termbox.ColorDefault)
 	// lastSelCol := -1
 	// Draw the runes on the screen
@@ -18,7 +18,7 @@ func (e *editor) editorRefreshScreen() {
 		filerow := e.cb.point.ro + y
 
 		if filerow >= e.cb.numrows {
-			drawline(y, e.fgcolor, e.bgcolor, "~")
+			e.drawline(y, e.fgcolor, e.bgcolor, "~")
 		} else {
 			r := e.cb.rows[filerow]
 			len := r.rsize - e.cb.point.co
@@ -56,13 +56,13 @@ func (e *editor) editorRefreshScreen() {
 		status = status + " "
 		slen++
 	}
-	drawline(e.screenrows, e.fgcolor|termbox.AttrReverse, e.bgcolor|termbox.AttrReverse, status) //termbox.ColorWhite, termbox.ColorBlack, status)
+	e.drawline(e.screenrows, e.fgcolor|termbox.AttrReverse, e.bgcolor|termbox.AttrReverse, status) //termbox.ColorWhite, termbox.ColorBlack, status)
 	/* Second row: depends on e.statusmsg and the status message update time. */
 
 	if len(e.statusmsg) > 0 && time.Since(e.statusmsgTime).Seconds() < 3 {
-		drawline(e.screenrows+1, e.fgcolor, e.bgcolor, e.statusmsg)
+		e.drawline(e.screenrows+1, e.fgcolor, e.bgcolor, e.statusmsg)
 	} else {
-		drawline(e.screenrows+1, e.fgcolor, e.bgcolor, " ")
+		e.drawline(e.screenrows+1, e.fgcolor, e.bgcolor, " ")
 	}
 	/* Put cursor at its currentLine position. Note that the horizontal position
 	 * at which the cursor is displayed may be different compared to 'e.cb.point.c'
@@ -75,7 +75,9 @@ func (e *editor) editorRefreshScreen() {
 		}
 	}
 
-	termbox.SetCursor(cx, e.cb.point.r)
+	if drawCursor {
+		termbox.SetCursor(cx, e.cb.point.r)
+	}
 	termbox.Flush()
 }
 
@@ -122,12 +124,16 @@ func (e *editor) adjustCursor() int {
 	}
 	return cx
 }
-func drawline(y int, fg, bg termbox.Attribute, msg string) {
+func (e *editor) drawline(y int, fg, bg termbox.Attribute, msg string) {
 	x := 0
 	for _, c := range msg {
 		termbox.SetCell(x, y, c, fg, bg)
 		x++
 	}
+	for k := x; k < (e.screencols - 1); k++ {
+		termbox.SetCell(k, y, ' ', fg, bg)
+	}
+
 }
 
 /* Set an editor status message for the second line of the status, at the

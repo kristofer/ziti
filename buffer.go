@@ -17,6 +17,15 @@ func (e *editor) indexOfBuffer(element *buffer) int {
 	return -1 //not found.
 }
 
+func (e *editor) anyBufferDirty() bool {
+	for _, v := range e.buffers {
+		if v.dirty {
+			return true
+		}
+	}
+	return false
+}
+
 func (e *editor) indexOfBufferNamed(name string) (int, error) {
 	for k, v := range e.buffers {
 		if strings.Compare(v.filename, name) == 0 {
@@ -24,6 +33,11 @@ func (e *editor) indexOfBufferNamed(name string) (int, error) {
 		}
 	}
 	return -1, errors.New("not found") //not found.
+}
+
+func (e *editor) removeBuffer(element *buffer) {
+	i := e.indexOfBuffer(element)
+	e.buffers = append(e.buffers[:i], e.buffers[i+1:]...)
 }
 
 func (e *editor) nextBuffer() {
@@ -69,4 +83,18 @@ func (e *editor) listBuffers() {
 
 	e.cb.dirty = false
 	e.cb.readonly = true
+}
+
+func (e *editor) killBuffer() {
+	if e.cb.dirty {
+		e.editorSetStatusMessage("Buffer %s is modified.", e.cb.filename)
+		return
+	}
+	e.removeBuffer(e.cb)
+	if len(e.buffers) > 0 {
+		e.cb = e.buffers[0]
+	}
+	if len(e.buffers) == 0 {
+		e.done = true
+	}
 }

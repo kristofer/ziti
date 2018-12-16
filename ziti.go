@@ -102,28 +102,28 @@ func (e *editor) checkErr(er error) {
 
 // KEY constants
 const (
-	KeyNull   = 0  /* NULL ctrl-space set mark */
-	CtrlA     = 1  /* Ctrl-a BOL */
-	CtrlB     = 2  /* Ctrl-B list buffers */
-	CtrlC     = 3  /* Ctrl-c  cop */
-	CtrlE     = 5  /* Ctrl-e  EOL */
-	CtrlD     = 4  /* Ctrl-d del forward? */
-	CtrlF     = 6  /* Ctrl-f find */
-	CtrlH     = 8  /* Ctrl-h del backward*/
-	Tab       = 9  /* Tab */
-	CtrlK     = 11 /* Ctrl+k killToEOL */
-	CtrlL     = 12 /* Ctrl+l redraw */
-	Enter     = 13 /* Enter */
-	CtrlN     = 14 /* Ctrl+n nextBuffer */
-	CtrlO     = 15 /* Ctrl+Oh load file */
-	CtrlQ     = 17 /* Ctrl-q quit*/
-	CtrlS     = 19 /* Ctrl-s save*/
-	CtrlU     = 21 /* Ctrl-u number of times??*/
-	CtrlV     = 22 /* Ctrl-V paste */
-	CtrlW     = 23
-	CtrlX     = 24 /* Ctrl-X cut */
-	CtrlY     = 25
-	CtrlZ     = 26
+	KeyNull   = 0   /* NULL ctrl-space set mark */
+	CtrlA     = 1   /* Ctrl-a BOL */
+	CtrlB     = 2   /* Ctrl-B list buffers */
+	CtrlC     = 3   /* Ctrl-c  cop */
+	CtrlE     = 5   /* Ctrl-e  EOL */
+	CtrlD     = 4   /* Ctrl-d del forward? */
+	CtrlF     = 6   /* Ctrl-f find */
+	CtrlH     = 8   /* Ctrl-h del backward*/
+	Tab       = 9   /* Tab */
+	CtrlK     = 11  /* Ctrl+k killToEOL */
+	CtrlL     = 12  /* Ctrl+l redraw */
+	Enter     = 13  /* Enter */
+	CtrlN     = 14  /* Ctrl+n nextBuffer */
+	CtrlO     = 15  /* Ctrl+Oh load file */
+	CtrlQ     = 17  /* Ctrl-q quit*/
+	CtrlS     = 19  /* Ctrl-s save*/
+	CtrlU     = 21  /* Ctrl-u number of times??*/
+	CtrlV     = 22  /* Ctrl-V paste */
+	CtrlW     = 23  /* Ctrl-W kill buffer */
+	CtrlX     = 24  /* Ctrl-X cut */
+	CtrlY     = 25  /* Help */
+	CtrlZ     = 26  /* ?? */
 	Esc       = 27  /* Escape */
 	Space     = 32  /* Space */
 	Backspace = 127 /* Backspace */
@@ -155,7 +155,7 @@ func (e *editor) initEditor() {
 	e.cb.point.c, e.cb.point.r = 0, 0
 	e.cb.point.ro, e.cb.point.co = 0, 0
 	e.cb.numrows = 0
-	e.cb.rows = nil
+	e.cb.rows = []*erow{}
 	e.cb.dirty = false
 	e.screencols, e.screenrows = termbox.Size()
 	e.screenrows -= 2 /* Get room for status bar. */
@@ -203,7 +203,7 @@ func (z *Ziti) Start(filename string) {
 		}
 	}()
 	for e.done != true {
-		e.editorRefreshScreen()
+		e.editorRefreshScreen(true)
 		select {
 		case ev := <-e.events:
 			e.editorProcessEvent(ev)

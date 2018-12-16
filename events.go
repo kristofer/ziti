@@ -115,6 +115,8 @@ func (e *editor) editorProcessEvent(ev termbox.Event) {
 		e.loadHelp()
 	case CtrlN:
 		e.nextBuffer()
+	case CtrlW:
+		e.killBuffer()
 	case CtrlO:
 		e.loadFile()
 	case CtrlA:
@@ -168,7 +170,7 @@ func (e *editor) editorProcessEvent(ev termbox.Event) {
 	case ArrowUp, ArrowDown, ArrowLeft, ArrowRight:
 		e.editorMoveCursor(ev.Key)
 	case CtrlL: /* ctrl+l, clear screen */
-		e.editorRefreshScreen()
+		e.editorRefreshScreen(true)
 	case Esc:
 		/* Nothing to do for Esc in this mode. */
 	case termbox.KeyCtrlG:
