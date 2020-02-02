@@ -1,7 +1,7 @@
 # Ziti
 
 
-Ziti is a small terminal/screen text editor in less than 2K lines of Go code. It uses Go's rune (unicode) machinery. Has multiple buffers. But still single window. 
+Ziti is a small terminal/screen text editor in less than 2K lines of Go code. It uses Go's rune (unicode) machinery. Has multiple buffers. But still single window. hope this makes it into the vault  
 
 ### Usage: ziti `<filename>`
 
