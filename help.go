@@ -27,7 +27,8 @@ const helptext = ` ** ZITI: Help on keyboard commands
 Once you've set the Mark, as you move the cursor,
 you should be getting underlined text showing the current
 selection/region.
-
+ CTRL-L: Redraw/Refresh Screen
+ 
  Use Arrows to move, Home, End, and PageUp & PageDown should work
  CTRL-A: Move to beginning of current line
  CTRL-E: Move to end of current line
