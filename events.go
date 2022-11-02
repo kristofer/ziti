@@ -85,6 +85,7 @@ func (e *editor) editorMoveCursor(rch termbox.Key) {
 			e.cb.point.c = 0
 		}
 	}
+	e.editorSetStatusMessage("point(%d,%d)[%d,%d]s(%d,%d)", e.cb.point.c, e.cb.point.r, e.cb.point.co, e.cb.point.ro, e.screencols, e.screenrows)
 }
 
 /* Process events arriving from the standard input, which is, the user
@@ -150,6 +151,12 @@ func (e *editor) editorProcessEvent(ev termbox.Event) {
 		e.setMark()
 	case DelKey:
 		e.editorDelChar()
+	case HomeKey:
+		//e.editorSetStatusMessage("Home: Beginning of Buffer.")
+		e.moveToBufferStart()
+	case EndKey:
+		e.editorSetStatusMessage("End: End of Buffer.")
+		e.moveToBufferEnd()
 	case PageUp, PageDown:
 		if ev.Key == PageUp && e.cb.point.r != 0 {
 			e.cb.point.r = 0

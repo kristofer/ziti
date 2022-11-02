@@ -143,3 +143,17 @@ func (e *editor) editorSetStatusMessage(fm string, args ...interface{}) {
 	e.statusmsgTime = time.Now()
 	return
 }
+
+func (e *editor) moveToBufferStart() {
+	e.cb.point.c = 0
+	e.cb.point.co = 0
+	e.cb.point.r = 0
+	e.cb.point.ro = 0
+}
+
+func (e *editor) moveToBufferEnd() {
+	e.cb.point.c = e.cb.rows[e.cb.numrows-1].size
+	e.cb.point.co = 0
+	e.cb.point.r = e.screenrows - 1
+	e.cb.point.ro = (e.cb.numrows - 1) - (e.screenrows - 1)
+}

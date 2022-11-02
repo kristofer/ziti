@@ -28,7 +28,7 @@ Once you've set the Mark, as you move the cursor,
 you should be getting underlined text showing the current
 selection/region.
  CTRL-L: Redraw/Refresh Screen
- 
+
  Use Arrows to move, Home, End, and PageUp & PageDown should work
  CTRL-A: Move to beginning of current line
  CTRL-E: Move to end of current line
@@ -39,6 +39,8 @@ selection/region.
  on mac keyboards:
  FN+ArrowUp: PageUp (screen full)
  FN+ArrowDown: PageDown (screen full)
+ FN+ArrowLeft: BeginningOfFile (screen full)
+ FN+ArrowDown: EndOfFile (screen full)
 
 Setting the cursor with a mouse click should work. (and so,
 it should work to set the selection. but hey, you MUST SetMark
@@ -47,9 +49,10 @@ for a selection to start... sorry, it's not a real mouse based editor.)
 
 func (e *editor) loadHelp() error {
 	ZITIHELP := "*Ziti Help*"
-	bufExists, err := e.indexOfBufferNamed(ZITIHELP)
+	found, err := e.indexOfBufferNamed(ZITIHELP)
 	if err == nil {
-		e.cb = e.buffers[bufExists]	
+		e.cb = e.buffers[found]
+		return nil
 	} else {
 		e.addNewBuffer()
 		e.cb.filename = ZITIHELP
@@ -59,13 +62,13 @@ func (e *editor) loadHelp() error {
 			line := scanner.Text()
 			e.editorInsertRow(e.cb.numrows, line)
 		}
-	
+
 		if err := scanner.Err(); err != nil {
 			log.Fatal(err)
 		}
-	
+
 		e.cb.dirty = false
-		e.cb.readonly = true	
+		e.cb.readonly = true
 	}
 	return nil
 }

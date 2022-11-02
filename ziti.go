@@ -105,7 +105,7 @@ const (
 	KeyNull   = 0   /* NULL ctrl-space set mark */
 	CtrlA     = 1   /* Ctrl-a BOL */
 	CtrlB     = 2   /* Ctrl-B list buffers */
-	CtrlC     = 3   /* Ctrl-c  cop */
+	CtrlC     = 3   /* Ctrl-c  copy */
 	CtrlE     = 5   /* Ctrl-e  EOL */
 	CtrlD     = 4   /* Ctrl-d del forward? */
 	CtrlF     = 6   /* Ctrl-f find */
@@ -115,7 +115,7 @@ const (
 	CtrlL     = 12  /* Ctrl+l redraw */
 	Enter     = 13  /* Enter */
 	CtrlN     = 14  /* Ctrl+n nextBuffer */
-	CtrlO     = 15  /* Ctrl+Oh load file */
+	CtrlO     = 15  /* Ctrl+Oh load(open) file */
 	CtrlQ     = 17  /* Ctrl-q quit*/
 	CtrlS     = 19  /* Ctrl-s save*/
 	CtrlU     = 21  /* Ctrl-u number of times??*/

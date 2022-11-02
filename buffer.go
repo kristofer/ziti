@@ -8,6 +8,8 @@ import (
 	"strings"
 )
 
+// Functions which manipulate buffers.
+
 func (e *editor) indexOfBuffer(element *buffer) int {
 	for k, v := range e.buffers {
 		if element == v {
