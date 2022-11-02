@@ -45,20 +45,26 @@ for a selection to start... sorry, it's not a real mouse based editor.)
 `
 
 func (e *editor) loadHelp() error {
-	e.addNewBuffer()
-	e.cb.filename = "*Ziti Help*"
-	scanner := bufio.NewScanner(strings.NewReader(helptext))
-	for scanner.Scan() {
-		// does the line contain the newline?
-		line := scanner.Text()
-		e.editorInsertRow(e.cb.numrows, line)
+	ZITIHELP := "*Ziti Help*"
+	bufExists, err := e.indexOfBufferNamed(ZITIHELP)
+	if err == nil {
+		e.cb = e.buffers[bufExists]	
+	} else {
+		e.addNewBuffer()
+		e.cb.filename = ZITIHELP
+		scanner := bufio.NewScanner(strings.NewReader(helptext))
+		for scanner.Scan() {
+			// does the line contain the newline?
+			line := scanner.Text()
+			e.editorInsertRow(e.cb.numrows, line)
+		}
+	
+		if err := scanner.Err(); err != nil {
+			log.Fatal(err)
+		}
+	
+		e.cb.dirty = false
+		e.cb.readonly = true	
 	}
-
-	if err := scanner.Err(); err != nil {
-		log.Fatal(err)
-	}
-
-	e.cb.dirty = false
-	e.cb.readonly = true
 	return nil
 }
