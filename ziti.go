@@ -68,6 +68,11 @@ type cursor struct {
 	ro int /* Cursor rowoffset */
 	co int /* Cursor coloffset */
 }
+// cursor rowoffset is the number of rows into the file of the 0-th
+// screenrow. so if ro is 500, then the 0th row of the screen is 
+// looking at the 500th row in the file.
+// It's the "scroll" offset
+
 type editor struct {
 	events        chan termbox.Event
 	buffers       []*buffer
